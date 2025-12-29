@@ -1,9 +1,20 @@
 // Quick test script to verify Telegram setup
-const TELEGRAM_BOT_TOKEN = '8413364815:AAEdNkguuo6T7ut0r7Xd-6_8ehtp7QECck8';
-const TELEGRAM_CHAT_ID = '7696777908';
+// Load environment variables from .env file
+import 'dotenv/config';
+
+const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 
 async function testTelegram() {
   console.log('🔍 Testing Telegram Bot Setup...\n');
+
+  // Check if environment variables are loaded
+  if (!TELEGRAM_BOT_TOKEN) {
+    console.log('❌ TELEGRAM_BOT_TOKEN not found in .env file!');
+    console.log('   Please add TELEGRAM_BOT_TOKEN to your .env file');
+    console.log('   Format: TELEGRAM_BOT_TOKEN="your-bot-token-here"\n');
+    return;
+  }
 
   // Test 1: Check bot info
   console.log('1️⃣ Checking bot status...');
