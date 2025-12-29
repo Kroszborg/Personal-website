@@ -177,4 +177,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Built with** by Abhiman Panwar using the Sleek Portfolio template
+**Built with** by Abhiman Panwar using the Sleek Portfolio template as a base and customized for my personal use.
