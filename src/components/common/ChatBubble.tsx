@@ -344,6 +344,7 @@ const ChatBubble: React.FC = () => {
                           ? 'text-secondary'
                           : 'text-muted-foreground',
                       )}
+                      suppressHydrationWarning
                     >
                       {message.timestamp}
                     </p>
