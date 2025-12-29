@@ -62,7 +62,7 @@ NEXT_PUBLIC_UMAMI_ID="your-umami-website-id"
 
    ```bash
    # Run the test script to get your chat ID
-   node test-telegram.js
+   bun run testTelegram
    ```
 
    - The script will show your Chat ID from the message you sent

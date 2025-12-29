@@ -1,25 +1,25 @@
 ---
-title: 'MetaMorpher - Web-Based Multimedia Conversion Tool'
-description: 'Privacy-focused, client-side multimedia conversion tool using FFmpeg.wasm'
+title: 'MetaMorpher - Privacy-First File Conversion Platform'
+description: 'Free, unlimited, client-side file converter supporting 700+ conversion types with PWA capabilities'
 image: '/project/Metamorpher.webp'
-technologies: ['React', 'TypeScript', 'FFmpeg.wasm', 'Tailwind CSS', 'Vercel']
+technologies: ['Next.js 15', 'React 19', 'TypeScript', 'FFmpeg.wasm', 'Tailwind CSS', 'PWA', 'WebAssembly', 'PDF.js', 'jsPDF']
 github: 'https://github.com/Kroszborg/metamorpher'
 live: 'https://metamorpher.kroszborg.co'
-timeline: '1 month'
+timeline: '2 months'
 role: 'Full Stack Developer'
 team: 'Solo'
 status: 'completed'
 featured: true
-challenges: ['WebAssembly Integration', 'Browser Performance', 'File Processing', 'Privacy & Security']
-learnings: ['FFmpeg.wasm', 'WebAssembly', 'Client-side Processing', 'Performance Optimization']
+challenges: ['WebAssembly FFmpeg Integration', 'Multi-Format Document Processing', 'PWA Offline Support', 'Browser Performance Optimization', 'ZIP Archive Handling']
+learnings: ['FFmpeg.wasm', 'WebAssembly', 'Progressive Web Apps', 'Client-side Processing', 'PDF Manipulation', 'Service Workers', 'Document Conversion Pipelines']
 isPublished: true
 ---
 
-# MetaMorpher - Web-Based Multimedia Conversion Tool
+# MetaMorpher - Privacy-First File Conversion Platform
 
 ## Overview
 
-MetaMorpher is a privacy-focused, client-side multimedia conversion tool that processes image, audio, and video formats directly in the browser using FFmpeg.wasm (WebAssembly).
+MetaMorpher is a sophisticated, privacy-first file conversion platform that leverages WebAssembly technology to perform unlimited conversions entirely in the browser. Supporting **700+ conversion types** across images, videos, audio, and documents, it provides native-like conversion speeds while ensuring complete data privacy through 100% client-side processing.
 
 ## Problem Statement
 
@@ -27,94 +27,241 @@ Traditional file conversion tools require uploading files to servers, which rais
 
 ## Solution
 
-MetaMorpher brings the power of FFmpeg to the browser through WebAssembly, enabling 100% client-side processing. Your files never leave your device, ensuring complete privacy and faster processing.
+MetaMorpher brings the power of FFmpeg to the browser through WebAssembly, enabling 100% client-side processing. Combined with specialized libraries for document processing (PDF.js, jsPDF, Mammoth.js), it offers a comprehensive conversion solution. Your files never leave your device, ensuring complete privacy and faster processing. Available as an installable Progressive Web App with full offline support.
 
 ## Key Features
 
-### 100% Client-Side Processing
-- All conversions happen in your browser
+### 700+ Conversion Types Supported
+
+#### Media Formats
+- **Images (144 conversions)**: JPG, JPEG, PNG, GIF, BMP, WEBP, ICO, TIF, TIFF, SVG, RAW, TGA
+- **Videos (256+ conversions)**: MP4, M4V, MP4V, 3GP, 3G2, AVI, MOV, WMV, MKV, FLV, OGV, WEBM, H264, HEVC
+- **Audio (49 conversions)**: MP3, WAV, OGG, AAC, WMA, FLAC, M4A
+- **Video ↔ GIF**: 100+ bidirectional conversions for motion graphics
+
+#### Document Processing
+- **Markdown**: → PDF, HTML
+- **HTML**: → PDF
+- **Text**: → PDF
+- **DOCX**: → PDF, HTML, Markdown
+- **PDF**: Multi-page extraction to images + automatic ZIP
+
+### Advanced Features
+
+#### Video & Image Operations
+- **Video Thumbnail Extraction**: Extract high-quality frames at 1-second mark
+- **Multi-Page PDF to Images**: Converts all pages with automatic ZIP bundling
+- **Images to PDF Creator**: Drag-to-reorder interface for custom PDF creation
+- **Scale-Based Rendering**: 2x quality rendering for crisp outputs
+
+#### Progressive Web App (PWA)
+- **Installable**: Desktop and mobile app installation
+- **Offline Support**: Full functionality without internet after first visit
+- **Auto-Updates**: Automatic updates on redeploy with skip-waiting
+- **Service Worker**: Caches app files for lightning-fast loading
+- **Standalone Mode**: No browser UI, like a native app
+
+### 100% Privacy-Focused
+- All conversions happen in your browser using WebAssembly
 - Zero file uploads to servers
-- Complete data privacy
-
-### Privacy-Focused
-- No file uploads to servers - your data stays with you
 - No tracking or analytics on file content
-- Secure, local processing
-
-### Multi-Format Support
-- **Images**: PNG, JPG, WebP, GIF, and more
-- **Audio**: MP3, WAV, OGG, AAC, FLAC
-- **Video**: MP4, WebM, AVI, MOV, MKV
+- Secure, local processing with HTML sanitization
+- Complete data privacy guaranteed
 
 ### 70% Faster Processing
-- Faster than cloud-based alternatives
+- WebAssembly provides native-like conversion speeds
 - No upload/download overhead
 - Direct browser processing
+- Parallel processing potential
 
-### User-Friendly Interface
-- Intuitive file handling with drag-and-drop
-- Real-time progress monitoring
-- Clean design with Tailwind CSS
-
-### Donation System
-- Integrated support for hosting costs
-- Optional contribution system
-- Sustainable open-source model
+### Professional UI/UX
+- Drag-and-drop file upload interface with react-dropzone
+- Real-time file validation and progress tracking
+- Format-specific conversion options
+- Toast notifications for feedback
+- Dark/Light mode support with next-themes
+- Mobile-responsive grid layouts
+- Dynamic file type icons
+- Human-readable file size display
 
 ## Tech Stack
 
-- **React** - UI framework
-- **TypeScript** - Type safety
-- **FFmpeg.wasm** - WebAssembly-based media processing
-- **Tailwind CSS** - Responsive styling
-- **Vercel** - Deployment platform
+### Frontend Framework
+- **Next.js 15** - React framework with optimized builds and App Router
+- **React 19** - Latest component-based UI library
+- **TypeScript** - Full type safety across entire codebase
+
+### Multimedia Processing Engines
+- **FFmpeg.wasm (v0.12.6)** - Core conversion engine for video, audio, and images
+  - Loads from CDN (unpkg.com @core 0.12.2)
+  - WebAssembly for performance-critical operations
+  - Handles 700+ conversion types at native speeds
+- **PDF.js (v5.4.530)** - PDF parsing and rendering
+- **jsPDF (v3.0.4)** - Client-side PDF generation
+- **Mammoth.js (v1.11.0)** - DOCX to HTML/Markdown conversion
+
+### Document & File Handling
+- **markdown-it (v14.1.0)** - Markdown parsing and rendering
+- **html2canvas (v1.4.1)** - HTML to image rendering
+- **DOMPurify (v3.3.1)** - HTML sanitization for security
+- **JSZip (v3.10.1)** - ZIP archive creation/extraction for multi-file downloads
+- **react-dropzone (v14.3.8)** - Advanced drag-and-drop file upload
+
+### UI Components & Styling
+- **Tailwind CSS 3** - Utility-first CSS framework with dark mode
+- **shadcn/ui** - Pre-built, customizable UI components
+- **Radix UI** - Accessible component primitives (Dialog, Select, Tabs, Toast)
+- **lucide-react** - Comprehensive icon library (562 icons)
+- **react-icons** - Additional icon sets
+
+### Progressive Web App
+- **next-pwa (v5.6.0)** - Service worker and PWA implementation
+- **next-themes (v0.4.6)** - Dark/light mode management
+
+### Analytics & Performance
+- **Vercel Analytics** - Performance tracking
+- **react-ga4 (v2.1.0)** - Google Analytics 4 integration
+
+### Build Tools
+- **ESLint** - Code quality enforcement with Airbnb config
+- **Autoprefixer** - CSS vendor prefix support
+- **PostCSS** - CSS processing pipeline
 
 ## Technical Implementation
 
-### WebAssembly Integration
-- Integrated FFmpeg.wasm for browser-based media processing
-- Optimized WASM loading and initialization
+### WebAssembly FFmpeg Integration
+**File**: `utils/load-ffmpeg.ts`
+- Lazy loads FFmpeg.wasm from CDN (unpkg.com)
+- Uses `toBlobURL` for CORS-safe resource loading
+- Async initialization before conversion starts
+- Command-based operation: `['-i', input, output]`
+- Specialized 3GP encoding with custom parameters
 - Efficient memory management for large files
 
-### File Processing Pipeline
-- Built a robust file upload and validation system
-- Implemented progress tracking and error handling
-- Optimized for various file sizes and formats
+### Conversion Pipeline Architecture
+**File**: `utils/convert.ts` (216 lines)
 
-### Performance Optimization
-- Lazy-loaded FFmpeg.wasm to reduce initial bundle size
-- Implemented worker threads for non-blocking processing
-- Optimized memory usage for large file conversions
+**Conversion Flow:**
+1. File type detection via extension
+2. Format-specific routing:
+   - PDF operations → `pdf-converter.ts`
+   - Document conversions → `document-converter.ts`
+   - Media files → FFmpeg WebAssembly execution
+3. Blob creation and URL generation for download
 
-### User Experience
-- Designed intuitive drag-and-drop interface
-- Real-time conversion progress feedback
-- Responsive design for all device sizes
+### Document Conversion Pipeline
+**File**: `utils/document-converter.ts` (235 lines)
+
+**Supported Conversions:**
+- **Markdown**: markdown-it parser → HTML rendering → jsPDF generation
+- **DOCX**: Mammoth.js extraction → HTML processing → PDF/Markdown output
+- **HTML**: DOMPurify sanitization → DOM traversal → Text layout → PDF
+- Configurable page sizes (A4, Letter, Legal) and orientations
+- Dynamic imports for optimal bundle size
+
+### PDF Operations
+**File**: `utils/pdf-converter.ts` (192 lines)
+
+**Features:**
+- Multi-page detection and handling
+- Scale-based rendering (2x for quality)
+- Canvas-based page rendering with proper dimensions
+- Automatic ZIP creation for multi-page outputs
+- Sequential page naming (page-1.jpg, page-2.jpg, etc.)
+
+### Archive Handling
+**File**: `utils/archive-converter.ts` (68 lines)
+
+**Capabilities:**
+- ZIP creation from file arrays using JSZip
+- ZIP extraction with filename preservation
+- Batch download functionality via zip bundling
+- Automatic multi-file packaging
+
+### Progressive Web App Implementation
+
+**Service Worker Features:**
+- Auto-generated during build
+- Caches app files for offline access
+- Full offline functionality after first visit
+- Updates on redeploy with skip-waiting
+- 192px and 512px app icons
+
+**Installation Methods:**
+- Desktop (Chrome/Edge): Install icon in address bar
+- Android: Menu → "Install app"
+- iOS: Safari share → "Add to Home Screen"
+
+### Performance Optimizations
+
+**Code Splitting:**
+- Dynamic imports for large libraries (jsPDF, markdown-it, mammoth)
+- Lazy loading of FFmpeg only when needed
+- Route-based code splitting by Next.js
+- Efficient blob creation and URL management
+
+**UI Responsiveness:**
+- React hooks for state management (useState, useRef, useEffect)
+- Tabs-based interface preventing unnecessary component loading
+- Skeleton loading states during FFmpeg initialization
+- Real-time progress indication
+
+**Build Optimization:**
+- Next.js automatic code splitting
+- Tailwind CSS purging for minimal bundle
+- ESLint compliance for maintainability
+- Image optimization ready
 
 ## What I Learned
 
 Building MetaMorpher taught me:
-- Working with WebAssembly in web applications
-- Client-side media processing techniques
-- Optimizing large-scale computations in the browser
-- Building privacy-first applications
-- Performance optimization for resource-intensive tasks
+- **WebAssembly Integration**: Loading and executing FFmpeg.wasm in browser environments
+- **Client-Side Processing**: Handling multimedia conversions without server-side infrastructure
+- **PWA Development**: Service workers, caching strategies, and offline-first architecture
+- **Document Processing**: PDF manipulation, DOCX parsing, and Markdown rendering
+- **File System APIs**: Blob handling, ZIP creation, and multi-file download management
+- **Performance Optimization**: Dynamic imports, lazy loading, and code splitting techniques
+- **Browser APIs**: Canvas rendering, File API, and URL object management
+- **Component Architecture**: Building scalable UI with shadcn/ui and Radix primitives
+- **Security Best Practices**: HTML sanitization with DOMPurify for document conversions
+- **Type Safety**: TypeScript strict mode across complex conversion pipelines
 
 ## Impact
 
-MetaMorpher provides a completely private and fast way to convert media files without compromising user privacy.
+MetaMorpher provides a completely private and fast way to convert media files without compromising user privacy, while offering enterprise-level features as a free, open-source tool.
 
 **Results:**
+- **700+ Conversions**: Comprehensive format support across all media types
 - **70% Faster**: Processing compared to cloud-based alternatives
 - **100% Private**: No server uploads, complete client-side processing
-- **Multi-Format**: Support for images, audio, and video
-- **Zero Cost**: Free to use with optional donations
-- **User Friendly**: Intuitive interface with real-time feedback
+- **PWA Ready**: Installable app with full offline support
+- **Zero Cost**: Free, unlimited conversions with no restrictions
+- **Production Grade**: 48 dependencies expertly integrated
+- **Type Safe**: Full TypeScript coverage across all conversion pipelines
+- **Global Reach**: Deployed on Vercel with CDN distribution
 
-## Future Enhancements
+## Architecture Highlights
 
-- Batch processing for multiple files
-- Additional format support
-- Advanced conversion settings
-- Browser extension version
-- Offline PWA support
+**Component Structure:**
+- **app/page.tsx** - Main landing page with hero section
+- **components/dropzone.tsx** - 800-line comprehensive file upload interface
+- **components/images-to-pdf.tsx** - Dedicated image-to-PDF creator with drag-to-reorder
+- **utils/convert.ts** (216 lines) - Main conversion routing logic
+- **utils/document-converter.ts** (235 lines) - Document processing pipeline
+- **utils/pdf-converter.ts** (192 lines) - PDF operations and multi-page handling
+- **utils/archive-converter.ts** (68 lines) - ZIP creation and extraction
+
+**Technical Metrics:**
+- 48 production dependencies
+- 15+ custom components
+- 8 utility modules
+- 700+ supported conversions
+- Installable PWA on all platforms
+
+## Security Features
+
+- **HTML Sanitization**: DOMPurify for document conversions
+- **Client-Side Only**: No server exposure or data transmission
+- **Safe File Handling**: No automatic execution or dangerous operations
+- **CSP Compatible**: Safe for content security policies
+- **Privacy First**: Zero tracking on file content

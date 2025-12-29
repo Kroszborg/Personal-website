@@ -1,6 +1,5 @@
 // Quick test script to verify Telegram setup
-// Load environment variables from .env file
-import 'dotenv/config';
+// Uses Next.js environment variables
 
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
@@ -10,8 +9,8 @@ async function testTelegram() {
 
   // Check if environment variables are loaded
   if (!TELEGRAM_BOT_TOKEN) {
-    console.log('❌ TELEGRAM_BOT_TOKEN not found in .env file!');
-    console.log('   Please add TELEGRAM_BOT_TOKEN to your .env file');
+    console.log('❌ TELEGRAM_BOT_TOKEN not found in environment variables!');
+    console.log('   Please add TELEGRAM_BOT_TOKEN to your .env.local file');
     console.log('   Format: TELEGRAM_BOT_TOKEN="your-bot-token-here"\n');
     return;
   }

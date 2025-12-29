@@ -1,25 +1,25 @@
 ---
-title: 'LocalGov - AI-Powered Legal Explainer'
-description: 'AI-driven platform that simplifies local government policies into plain language'
+title: 'LocalGov.AI - AI-Powered Civic Technology Platform'
+description: 'AI-driven platform democratizing access to local government information with streaming responses and smart caching'
 image: '/project/LocalGovAI.webp'
-technologies: ['Next.js', 'TypeScript', 'OpenAI', 'Tailwind CSS']
-github: 'https://github.com/Kroszborg/localgov'
+technologies: ['Next.js 14', 'TypeScript', 'Google Gemini 2.0', 'Supabase', 'Tailwind CSS', 'React 18', 'Framer Motion']
+github: 'https://github.com/Kroszborg/localgov.ai'
 live: 'https://localgov.kroszborg.co'
-timeline: '1 month'
+timeline: '2 months'
 role: 'Full Stack Developer'
 team: 'Solo'
 status: 'completed'
 featured: true
-challenges: ['AI Integration', 'Session Caching', 'SSR Implementation', 'API Cost Optimization']
-learnings: ['OpenAI API Integration', 'Caching Strategies', 'Server-Side Rendering', 'Cost Optimization']
+challenges: ['Streaming SSE Implementation', 'Smart Caching with TTL', 'PKCE Authentication Flow', 'Real-time Response Delivery', 'Rate Limiting Middleware']
+learnings: ['Google Gemini API Integration', 'Server-Sent Events', 'Supabase Auth & Database', 'Advanced Caching Strategies', 'shadcn/ui Component System']
 isPublished: true
 ---
 
-# LocalGov - AI-Powered Legal Explainer
+# LocalGov.AI - AI-Powered Civic Technology Platform
 
 ## Overview
 
-LocalGov is an AI-driven platform that simplifies complex local government policies and legal documents into plain, easy-to-understand language using OpenAI's GPT models.
+LocalGov.AI is a production-grade civic technology platform that democratizes access to local government information by translating complex legal language into plain English. Users can ask natural language questions about local laws, ordinances, and policies and receive instant, AI-powered explanations with real-time streaming responses.
 
 ## Problem Statement
 
@@ -27,69 +27,149 @@ Government policies and legal documents are often written in complex legal jargo
 
 ## Solution
 
-LocalGov uses AI to break down complex legal text into simple, plain language that anyone can understand, making government policies accessible to all citizens.
+LocalGov.AI uses Google Gemini 2.0 Flash API to break down complex legal text into simple, plain language that anyone can understand. The platform features streaming responses for real-time feedback, smart caching for 95% faster repeated queries, and location-specific intelligence covering 500+ cities.
 
 ## Key Features
 
-### AI-Powered Simplification
-- Converts complex legal text into plain language
-- Maintains accuracy while improving readability
-- Provides context and examples for better understanding
+### Version 2.0 - Latest Features
 
-### Server-Side Rendering (SSR)
-- Built with Next.js for optimal SEO
-- Fast initial page loads
-- Better search engine visibility
+#### Streaming Responses (SSE)
+- Real-time character-by-character AI responses using Server-Sent Events
+- Immediate feedback instead of blocking waits
+- Enhanced user experience with live updates
 
-### Session Caching
-- Reduces API calls by 30% through smart caching
-- Faster response times for repeated queries
-- Cost-effective operation
+#### Smart Caching System
+- 95% faster repeated queries with intelligent 1-hour TTL cache
+- Custom ResponseCache class with automatic cleanup
+- Cache key generation from query + location
+- Background cleanup every 10 minutes
 
-### User-Friendly Interface
-- Clean, accessible design with Tailwind CSS
-- Mobile-responsive layout
-- Intuitive navigation and search
+#### User Authentication & Personalization
+- Secure PKCE (Proof Key for Code Exchange) authentication flow
+- Supabase Auth with email verification
+- Search history tracking with timestamps
+- Bookmark system for saving important responses
+- Account management with GDPR-compliant deletion
+
+#### Location Intelligence
+- 500+ city autocomplete suggestions
+- Location-specific legal information
+- Smart location detection
+
+#### Modern UI/UX
+- Toast notifications for all actions (success, error, info)
+- Keyboard shortcuts (Cmd/Ctrl + K for quick search)
+- Loading skeletons instead of spinners
+- Dark/Light theme with system detection
+- Markdown rendering for rich formatted responses
+- Framer Motion animations for smooth transitions
+- Mobile-first responsive design
 
 ## Tech Stack
 
-- **Next.js** - React framework with SSR
-- **TypeScript** - Type-safe development
-- **OpenAI APIs** - GPT models for text simplification
-- **Tailwind CSS** - Utility-first styling
+### Frontend
+- **Next.js 14.2.35** - App Router with React Server Components
+- **TypeScript 5.8.3** - Strict mode for complete type safety
+- **React 18.2.0** - Latest component architecture
+- **Tailwind CSS 3.3.3** - Custom design system
+- **shadcn/ui + Radix UI** - 50+ reusable components
+- **Framer Motion 12.16.0** - Smooth animations and transitions
+- **react-markdown** - Beautiful formatted AI responses
+- **react-hook-form + Zod** - Type-safe form validation
+- **Sonner** - Modern toast notifications
+
+### Backend & Infrastructure
+- **Google Gemini 2.0 Flash** - Advanced AI language model
+- **Supabase** - PostgreSQL database with real-time updates
+- **Supabase Auth** - PKCE authentication flow
+- **Vercel** - Edge deployment with global CDN
+- **Server-Sent Events** - Streaming response implementation
 
 ## Technical Implementation
 
-### AI Integration
-- Integrated OpenAI's GPT models for natural language processing
-- Implemented prompt engineering for accurate simplification
-- Built fallback mechanisms for API failures
+### Streaming API Architecture
+- Built custom `/api/search` endpoint with Server-Sent Events (SSE)
+- Real-time response streaming using async generators
+- Proper error handling and connection management
+- Automatic response accumulation and storage
 
-### Caching Strategy
-- Implemented session-based caching to reduce API costs
-- Used Redis-like caching for frequently accessed policies
-- Reduced API calls by 30% while maintaining freshness
+### Advanced Caching System
+- Custom ResponseCache class with Map-based storage
+- Time-to-live (TTL) expiration set to 1 hour
+- Intelligent cache key generation from query + location
+- Background cleanup process every 10 minutes
+- Returns cached responses as streams for consistency
+- 95% performance improvement on repeated queries
 
-### SEO Optimization
-- Server-side rendering for better search visibility
-- Meta tags and structured data
-- Fast page loads and Core Web Vitals optimization
+### Authentication & Database
+- PKCE-based OAuth flow (most secure for client-side apps)
+- Supabase PostgreSQL with real-time capabilities
+- Auto-refresh token mechanism
+- Session persistence with localStorage
+- Protected routes with middleware session checking
+
+### Database Schema
+```sql
+-- Search History Table
+CREATE TABLE search_history (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  query TEXT NOT NULL,
+  location TEXT NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Bookmarks Table
+CREATE TABLE bookmarks (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  title TEXT NOT NULL,
+  query TEXT NOT NULL,
+  location TEXT NOT NULL,
+  content TEXT NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+```
+
+### Middleware & Security
+- Rate limiting: 30 requests per 60 seconds per IP
+- IP-based tracking using x-forwarded-for headers
+- Content Security Policy (CSP) for XSS protection
+- GDPR-compliant account deletion with cascading data removal
+- Data encryption in transit and at rest via Supabase
 
 ## What I Learned
 
-Building LocalGov taught me:
-- Integrating and optimizing AI APIs for production
-- Implementing effective caching strategies
-- Building SEO-friendly applications with SSR
-- Creating accessible interfaces for diverse audiences
-- Cost optimization for API-heavy applications
+Building LocalGov.AI taught me:
+- **Streaming Technologies**: Implementing Server-Sent Events for real-time data delivery
+- **Advanced Caching**: Building custom caching systems with TTL and automatic cleanup
+- **Modern Authentication**: PKCE flow implementation for secure client-side apps
+- **AI Integration**: Google Gemini API integration with context-aware prompting
+- **Component Architecture**: Building with shadcn/ui and Radix UI primitives
+- **Database Design**: PostgreSQL schema design with proper foreign key relationships
+- **Performance Optimization**: Code splitting, lazy loading, and edge deployment
+- **User Experience**: Toast notifications, loading states, and keyboard shortcuts
+- **Security Best Practices**: Rate limiting, CSP headers, and GDPR compliance
 
 ## Impact
 
-LocalGov makes government policies accessible to everyone, helping citizens understand their local laws and regulations without needing legal expertise.
+LocalGov.AI makes government policies accessible to everyone, helping citizens understand their local laws and regulations without needing legal expertise.
 
 **Results:**
-- **30% API Cost Reduction**: Smart caching strategies
-- **Fast Response Times**: SSR and caching optimization
-- **Improved Accessibility**: Plain language for all reading levels
-- **Better SEO**: Server-side rendering for search visibility
+- **95% Performance Improvement**: Smart caching for repeated queries
+- **Real-Time Responses**: Streaming SSE for immediate feedback
+- **500+ Cities Supported**: Location-specific legal information
+- **50+ UI Components**: Comprehensive component library
+- **PKCE Authentication**: Bank-level security for user data
+- **GDPR Compliant**: Complete data privacy and user control
+- **Production Ready**: Deployed on Vercel with global edge distribution
+
+## Architecture Highlights
+
+**79 TypeScript/TSX Files** organized in a clean, scalable structure:
+- **App Router** with Next.js 14 for optimal routing
+- **50+ shadcn/ui Components** for consistent design
+- **Custom Hooks** for logic separation
+- **API Routes** for streaming search and auth callbacks
+- **Middleware** for rate limiting and security
+- **TypeScript Strict Mode** for complete type safety
