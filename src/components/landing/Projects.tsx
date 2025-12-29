@@ -1,5 +1,3 @@
-'use client';
-
 import { projects } from '@/config/Projects';
 import { Link } from 'next-view-transitions';
 import React from 'react';
