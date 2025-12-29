@@ -3,7 +3,7 @@ export default function SpotifyNowPlaying() {
     <div className="mt-4 w-full max-w-md rounded-2xl">
       <iframe
         src="https://open.spotify.com/embed/track/4iz9lGMjU1lXS51oPmUmTe?utm_source=generator"
-        width="150%"
+        width="100%"
         height="152"
         frameBorder="0"
         allowFullScreen
