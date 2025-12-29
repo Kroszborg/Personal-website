@@ -5,7 +5,7 @@ export async function GET() {
     const response = await fetch(
       'https://api.forkyou.dev/api/user/profile/kroszborg',
       {
-        next: { revalidate: 3600 }, // Cache for 1 hour
+        next: { revalidate: 300 }, // Cache for 5 minutes
       },
     );
 
