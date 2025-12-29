@@ -35,6 +35,48 @@ export interface Experience {
 
 export const experiences: Experience[] = [
   {
+    isCurrent: true,
+    company: 'Bytehint',
+    position: 'MERN Stack Intern',
+    location: 'Remote',
+    image: '/company/bytehint.png',
+    description: [
+      'Translating Figma UI/UX designs into pixel-perfect responsive interfaces using Next.js, React, and Tailwind CSS',
+      'Working on electron projects for windows focusing on frontend development and UI/UX design',
+      'Working on ecommerce projects focusing on development and testing',
+    ],
+    startDate: 'Nov 2025',
+    endDate: 'Present',
+    technologies: [
+      {
+        name: 'Next.js',
+        href: 'https://nextjs.org/',
+        icon: <NextJs />,
+      },
+      {
+        name: 'React',
+        href: 'https://react.dev/',
+        icon: <ReactIcon />,
+      },
+      {
+        name: 'TypeScript',
+        href: 'https://typescriptlang.org/',
+        icon: <TypeScript />,
+      },
+      {
+        name: 'Tailwind CSS',
+        href: 'https://tailwindcss.com/',
+        icon: <TailwindCss />,
+      },
+      {
+        name: 'Figma',
+        href: 'https://figma.com/',
+        icon: <Figma />,
+      },
+    ],
+    website: 'https://www.bytehint.com/',
+  },
+  {
     isCurrent: false,
     company: 'Code Help',
     position: 'Full Stack Developer Intern',
