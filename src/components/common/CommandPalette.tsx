@@ -110,12 +110,15 @@ export function CommandPalette() {
   };
 
   const handleTwitter = () => {
-    window.open('https://twitter.com/Kroszborg', '_blank');
+    window.open('https://x.com/kroszborgg', '_blank');
     setOpen(false);
   };
 
   const handleLinkedIn = () => {
-    window.open('https://linkedin.com/in/kroszborg', '_blank');
+    window.open(
+      'https://www.linkedin.com/in/abhiman-panwar-272aa7228/',
+      '_blank',
+    );
     setOpen(false);
   };
 
