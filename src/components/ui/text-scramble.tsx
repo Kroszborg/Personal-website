@@ -18,7 +18,7 @@ export function TextScramble({
 }: TextScrambleProps) {
   const [displayText, setDisplayText] = useState(text);
   const [isScrambling, setIsScrambling] = useState(false);
-  const intervalRef = useRef<NodeJS.Timeout>();
+  const intervalRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
   const scramble = () => {
     if (isScrambling) return;
