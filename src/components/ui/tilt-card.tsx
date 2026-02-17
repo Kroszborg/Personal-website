@@ -1,7 +1,7 @@
 'use client';
 
 import { cn } from '@/lib/utils';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 interface TiltCardProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
@@ -37,6 +37,22 @@ export function TiltCard({
     setTransform({ rotateX: 0, rotateY: 0 });
   };
 
+  // Reset transform immediately when clicking on links to prevent view transition conflicts
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.closest('a')) {
+        setTransform({ rotateX: 0, rotateY: 0 });
+      }
+    };
+
+    const card = cardRef.current;
+    if (card) {
+      card.addEventListener('click', handleClick, true);
+      return () => card.removeEventListener('click', handleClick, true);
+    }
+  }, []);
+
   return (
     <div
       ref={cardRef}
@@ -44,6 +60,7 @@ export function TiltCard({
       style={{
         transform: `perspective(1000px) rotateX(${transform.rotateX}deg) rotateY(${transform.rotateY}deg)`,
         transformStyle: 'preserve-3d',
+        willChange: 'transform',
       }}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}

@@ -16,6 +16,7 @@ import { TiltCard } from '@/components/ui/tilt-card';
 import { type Project } from '@/types/project';
 import { Link } from 'next-view-transitions';
 import Image from 'next/image';
+import NextLink from 'next/link';
 import React, { useState } from 'react';
 
 import ArrowRight from '../svgs/ArrowRight';
@@ -75,11 +76,11 @@ export function ProjectCard({ project }: ProjectCardProps) {
           <div className="space-y-4">
             {/* Project Header - Title and Icons */}
             <div className="flex items-center justify-between gap-4">
-              <Link href={project.projectDetailsPageSlug}>
+              <NextLink href={project.projectDetailsPageSlug}>
                 <h3 className="group-hover:text-primary text-xl leading-tight font-semibold hover:cursor-pointer">
                   {project.title}
                 </h3>
-              </Link>
+              </NextLink>
               <div className="flex items-center gap-2">
                 <Tooltip>
                   <TooltipTrigger>
@@ -161,12 +162,12 @@ export function ProjectCard({ project }: ProjectCardProps) {
                 </>
               )}
             </div>
-            <Link
+            <NextLink
               href={project.projectDetailsPageSlug}
               className="text-secondary hover:text-primary flex items-center gap-2 text-sm underline-offset-4 transition-colors hover:underline"
             >
               View Details <ArrowRight className="size-4" />
-            </Link>
+            </NextLink>
           </CardFooter>
         )}
       </Card>
