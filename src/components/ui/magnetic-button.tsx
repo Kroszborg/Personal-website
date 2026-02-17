@@ -17,13 +17,26 @@ export function MagneticButton({
   asChild = false,
   ...props
 }: MagneticButtonProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const divRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
   const [transform, setTransform] = useState({ x: 0, y: 0 });
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!containerRef.current) return;
+  const getRect = () => {
+    if (asChild && divRef.current) {
+      return divRef.current.getBoundingClientRect();
+    }
+    if (!asChild && buttonRef.current) {
+      return buttonRef.current.getBoundingClientRect();
+    }
+    return null;
+  };
 
-    const rect = containerRef.current.getBoundingClientRect();
+  const handleMouseMove = (
+    e: React.MouseEvent<HTMLDivElement | HTMLButtonElement>,
+  ) => {
+    const rect = getRect();
+    if (!rect) return;
+
     const x = e.clientX - rect.left - rect.width / 2;
     const y = e.clientY - rect.top - rect.height / 2;
 
@@ -40,7 +53,7 @@ export function MagneticButton({
   if (asChild) {
     return (
       <div
-        ref={containerRef}
+        ref={divRef}
         className={cn(
           'inline-block transition-transform duration-150 ease-out',
           className,
@@ -58,14 +71,12 @@ export function MagneticButton({
 
   return (
     <button
-      ref={containerRef as React.RefObject<HTMLButtonElement>}
+      ref={buttonRef}
       className={cn('transition-transform duration-150 ease-out', className)}
       style={{
         transform: `translate(${transform.x}px, ${transform.y}px)`,
       }}
-      onMouseMove={
-        handleMouseMove as unknown as React.MouseEventHandler<HTMLButtonElement>
-      }
+      onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       {...props}
     >
