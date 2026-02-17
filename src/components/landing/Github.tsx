@@ -193,7 +193,6 @@ export default function Github() {
             </p>
             {!isLoading && !hasError && totalContributions > 0 && (
               <div className="mt-1 flex items-center justify-between gap-4">
-                {/* GitHub Stats - Left */}
                 <p className="text-primary text-sm font-medium">
                   Total:{' '}
                   <span className="font-black">

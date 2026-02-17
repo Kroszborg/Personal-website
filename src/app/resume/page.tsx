@@ -3,7 +3,6 @@ import { Separator } from '@/components/ui/separator';
 import { generateMetadata as getMetadata } from '@/config/Meta';
 import { resumeConfig } from '@/config/Resume';
 import { Metadata } from 'next';
-import React from 'react';
 
 export const metadata: Metadata = {
   ...getMetadata('/resume'),
@@ -37,6 +36,7 @@ export default function ResumePage() {
           <iframe
             src={resumeConfig.url}
             className="min-h-screen w-full"
+            title="Resume PDF"
           ></iframe>
         </div>
       </div>

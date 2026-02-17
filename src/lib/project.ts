@@ -46,10 +46,16 @@ export function getProjectCaseStudyBySlug(
       throw new Error(`Invalid frontmatter in ${slug}.mdx`);
     }
 
+    // Calculate reading time (average 200 words per minute)
+    const wordsPerMinute = 200;
+    const wordCount = content.split(/\s+/).length;
+    const readingTime = Math.ceil(wordCount / wordsPerMinute);
+
     return {
       slug,
       frontmatter,
       content,
+      readingTime,
     };
   } catch (error) {
     console.error(`Error reading project case study ${slug}:`, error);

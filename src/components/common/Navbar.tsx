@@ -28,11 +28,23 @@ export default function Navbar() {
             <div className="hidden items-center justify-center gap-4 md:flex">
               {navbarConfig.navItems.map((item) => (
                 <Link
-                  className="transition-all duration-300 ease-in-out hover:underline hover:decoration-2 hover:underline-offset-4"
+                  className={
+                    item.invisible
+                      ? 'group inline-block min-w-[4rem] py-1 text-center transition-all duration-300 ease-in-out hover:underline hover:decoration-2 hover:underline-offset-4'
+                      : 'transition-all duration-300 ease-in-out hover:underline hover:decoration-2 hover:underline-offset-4'
+                  }
                   key={item.label}
                   href={item.href}
                 >
-                  {item.label}
+                  <span
+                    className={
+                      item.invisible
+                        ? 'group-hover:text-foreground text-transparent transition-colors duration-300'
+                        : undefined
+                    }
+                  >
+                    {item.label}
+                  </span>
                 </Link>
               ))}
             </div>

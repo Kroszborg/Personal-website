@@ -172,6 +172,14 @@ export function CommandPalette() {
       action: () => handleNavigate('/contact'),
       group: 'navigation',
     },
+    {
+      id: 'secret',
+      label: 'Secret Page',
+      description: '🎉 You found it!',
+      icon: <FileText />,
+      action: () => handleNavigate('/secret'),
+      group: 'navigation',
+    },
 
     // Features
     {

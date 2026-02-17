@@ -201,22 +201,58 @@ export const ProjectComponents = {
   }: {
     children: React.ReactNode;
     [key: string]: unknown;
-  }) => (
-    <h2 className="mt-8 mb-4 text-3xl font-semibold" {...props}>
-      {children}
-    </h2>
-  ),
+  }) => {
+    const getTextContent = (node: React.ReactNode): string => {
+      if (typeof node === 'string') return node;
+      if (typeof node === 'number') return String(node);
+      if (React.isValidElement(node) && node.props) {
+        return getTextContent(
+          (node.props as { children?: React.ReactNode }).children,
+        );
+      }
+      if (Array.isArray(node)) return node.map(getTextContent).join('');
+      return '';
+    };
+    const text = getTextContent(children);
+    const id = text
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '');
+    return (
+      <h2 id={id} className="mt-8 mb-4 text-3xl font-semibold" {...props}>
+        {children}
+      </h2>
+    );
+  },
   h3: ({
     children,
     ...props
   }: {
     children: React.ReactNode;
     [key: string]: unknown;
-  }) => (
-    <h3 className="mt-6 mb-3 text-2xl font-medium" {...props}>
-      {children}
-    </h3>
-  ),
+  }) => {
+    const getTextContent = (node: React.ReactNode): string => {
+      if (typeof node === 'string') return node;
+      if (typeof node === 'number') return String(node);
+      if (React.isValidElement(node) && node.props) {
+        return getTextContent(
+          (node.props as { children?: React.ReactNode }).children,
+        );
+      }
+      if (Array.isArray(node)) return node.map(getTextContent).join('');
+      return '';
+    };
+    const text = getTextContent(children);
+    const id = text
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '');
+    return (
+      <h3 id={id} className="mt-6 mb-3 text-2xl font-medium" {...props}>
+        {children}
+      </h3>
+    );
+  },
   p: ({
     children,
     ...props

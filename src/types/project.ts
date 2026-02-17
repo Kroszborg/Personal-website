@@ -33,6 +33,7 @@ export interface ProjectCaseStudy {
   slug: string;
   frontmatter: ProjectCaseStudyFrontmatter;
   content: string;
+  readingTime?: number;
 }
 
 export interface ProjectCaseStudyPreview {

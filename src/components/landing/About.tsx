@@ -10,7 +10,6 @@ export default function About() {
   return (
     <Container className="mt-20">
       <SectionHeading subHeading="About" heading="Me" />
-      {/* About me */}
       <div className="mt-8 flex flex-col gap-4 md:flex-row">
         <Image
           src="/assets/catt.png"

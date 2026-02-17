@@ -10,13 +10,19 @@ import Image from 'next/image';
 import Github from '../svgs/Github';
 import Website from '../svgs/Website';
 import { ProjectComponents } from './ProjectComponents';
+import TableOfContents from './TableOfContents';
 
 interface ProjectContentProps {
   frontmatter: ProjectCaseStudyFrontmatter;
   content: string;
+  readingTime?: number;
 }
 
-export function ProjectContent({ frontmatter, content }: ProjectContentProps) {
+export function ProjectContent({
+  frontmatter,
+  content,
+  readingTime,
+}: ProjectContentProps) {
   const {
     title,
     description,
@@ -71,11 +77,21 @@ export function ProjectContent({ frontmatter, content }: ProjectContentProps) {
             )}
           </div>
 
-          <h1 className="text-4xl leading-tight font-bold lg:text-5xl">
-            {title}
-          </h1>
-
-          <p className="text-muted-foreground text-xl">{description}</p>
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex-1">
+              <h1 className="text-4xl leading-tight font-bold lg:text-5xl">
+                {title}
+              </h1>
+              <p className="text-muted-foreground mt-2 text-xl">
+                {description}
+              </p>
+            </div>
+            {readingTime && (
+              <div className="text-muted-foreground text-sm">
+                <span className="font-medium">{readingTime}</span> min read
+              </div>
+            )}
+          </div>
 
           {/* Project Meta Information */}
           <div className="bg-muted/20 grid gap-4 rounded-lg border p-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -142,6 +158,9 @@ export function ProjectContent({ frontmatter, content }: ProjectContentProps) {
 
         <Separator />
       </header>
+
+      {/* Table of Contents - inline below title, above content */}
+      <TableOfContents content={content} variant="inline" />
 
       {/* Technology Stack */}
       <div className="mb-8">

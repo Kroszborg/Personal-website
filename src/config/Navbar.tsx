@@ -1,6 +1,8 @@
 export interface NavItem {
   label: string;
   href: string;
+  /** When true, label is invisible until hover (e.g. for secret page) */
+  invisible?: boolean;
 }
 
 export const navbarConfig = {
@@ -23,6 +25,11 @@ export const navbarConfig = {
     {
       label: 'Projects',
       href: '/projects',
+    },
+    {
+      label: 'Secret',
+      href: '/secret',
+      invisible: true,
     },
   ] as NavItem[],
 };

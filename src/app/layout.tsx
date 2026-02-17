@@ -1,6 +1,8 @@
 import UmamiAnalytics from '@/components/analytics/UmamiAnalytics';
 import ChatBubble from '@/components/common/ChatBubble';
+import ConsoleMessage from '@/components/common/ConsoleMessage';
 import Footer from '@/components/common/Footer';
+import KonamiCode from '@/components/common/KonamiCode';
 import Navbar from '@/components/common/Navbar';
 import OnekoCat from '@/components/common/OnekoCat';
 import { Quote } from '@/components/common/Quote';
@@ -37,6 +39,8 @@ export default function RootLayout({
               <Quote />
               <Footer />
               <ChatBubble />
+              <KonamiCode />
+              <ConsoleMessage />
               <UmamiAnalytics />
               <SpeedInsights />
               <Analytics />

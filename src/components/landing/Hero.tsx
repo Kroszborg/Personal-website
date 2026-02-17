@@ -10,6 +10,8 @@ import Skill from '../common/Skill';
 import CV from '../svgs/CV';
 import Chat from '../svgs/Chat';
 import { Button } from '../ui/button';
+import { MagneticButton } from '../ui/magnetic-button';
+import { TextScramble } from '../ui/text-scramble';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 import SpotifyNowPlaying from './SpotifyNowPlaying';
 
@@ -64,7 +66,10 @@ export default function Hero() {
       {/* Text Area */}
       <div className="mt-8 flex flex-col gap-2">
         <h1 className="text-4xl font-bold">
-          Hi, I&apos;m {name} — <span className="text-secondary">{title}</span>
+          Hi, I&apos;m <TextScramble text={name} /> —{' '}
+          <span className="text-secondary">
+            <TextScramble text={title} />
+          </span>
         </h1>
 
         <div className="mt-4 flex flex-wrap items-center gap-x-1.5 gap-y-2 text-base whitespace-pre-wrap text-neutral-500 md:text-lg">
@@ -78,17 +83,18 @@ export default function Hero() {
           const IconComponent =
             buttonIcons[button.icon as keyof typeof buttonIcons];
           return (
-            <Button
-              key={index}
-              variant={button.variant as 'outline' | 'default'}
-              className={cn(
-                button.variant === 'outline' && 'inset-shadow-indigo-500',
-                button.variant === 'default' && 'inset-shadow-indigo-500',
-              )}
-            >
-              {IconComponent && <IconComponent />}
-              <Link href={button.href}>{button.text}</Link>
-            </Button>
+            <MagneticButton key={index} asChild className="inline-block">
+              <Button
+                variant={button.variant as 'outline' | 'default'}
+                className={cn(
+                  button.variant === 'outline' && 'inset-shadow-indigo-500',
+                  button.variant === 'default' && 'inset-shadow-indigo-500',
+                )}
+              >
+                {IconComponent && <IconComponent />}
+                <Link href={button.href}>{button.text}</Link>
+              </Button>
+            </MagneticButton>
           );
         })}
       </div>
