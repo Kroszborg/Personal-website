@@ -41,9 +41,9 @@ export const experiences: Experience[] = [
     location: 'Remote',
     image: '/company/bytehint.png',
     description: [
-      'Translating Figma UI/UX designs into pixel-perfect responsive interfaces using Next.js, React, and Tailwind CSS',
-      'Working on electron projects for windows focusing on frontend development and UI/UX design',
-      'Working on ecommerce projects focusing on development and testing',
+      'Translated Figma UI/UX designs into pixel-perfect responsive interfaces using Next.js, React, and Tailwind CSS',
+      'Worked on electron projects for Windows focusing on frontend development and UI/UX design',
+      'Worked on ecommerce projects focusing on development and testing',
     ],
     startDate: 'Nov 2025',
     endDate: 'Feb 2026',
