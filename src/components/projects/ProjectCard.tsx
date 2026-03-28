@@ -35,7 +35,10 @@ export function ProjectCard({ project }: ProjectCardProps) {
     <TiltCard>
       <Card className="group h-full w-full overflow-hidden border-gray-100 p-0 shadow-none transition-all dark:border-gray-800">
         <CardHeader className="p-0">
-          <div className="group relative aspect-video overflow-hidden">
+          <div
+            className="group relative overflow-hidden"
+            style={{ aspectRatio: '16 / 5.5' }}
+          >
             <Image
               className="h-full w-full object-cover"
               src={project.image}
@@ -72,12 +75,12 @@ export function ProjectCard({ project }: ProjectCardProps) {
           </div>
         </CardHeader>
 
-        <CardContent className="px-6">
-          <div className="space-y-4">
+        <CardContent className="px-3 pt-2 pb-1.5">
+          <div className="space-y-2">
             {/* Project Header - Title and Icons */}
             <div className="flex items-center justify-between gap-4">
               <NextLink href={project.projectDetailsPageSlug}>
-                <h3 className="group-hover:text-primary text-xl leading-tight font-semibold hover:cursor-pointer">
+                <h3 className="group-hover:text-primary text-base leading-tight font-semibold hover:cursor-pointer">
                   {project.title}
                 </h3>
               </NextLink>
@@ -116,18 +119,20 @@ export function ProjectCard({ project }: ProjectCardProps) {
             </div>
 
             {/* Description */}
-            <p className="text-secondary line-clamp-3">{project.description}</p>
+            <p className="text-secondary line-clamp-2 text-sm">
+              {project.description}
+            </p>
 
             {/* Technologies */}
             <div>
-              <h4 className="text-secondary mb-2 text-sm font-medium">
-                Technologies
+              <h4 className="text-secondary mb-1.5 text-xs font-medium tracking-wide uppercase">
+                Stack
               </h4>
               <div className="flex flex-wrap gap-2">
                 {project.technologies.map((technology, index) => (
                   <Tooltip key={index}>
                     <TooltipTrigger>
-                      <div className="size-6 transition-all duration-300 hover:scale-120 hover:cursor-pointer">
+                      <div className="size-5 transition-all duration-300 hover:scale-120 hover:cursor-pointer">
                         {technology.icon}
                       </div>
                     </TooltipTrigger>
@@ -142,7 +147,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
         </CardContent>
 
         {project.details && (
-          <CardFooter className="flex justify-between p-6 pt-0">
+          <CardFooter className="flex justify-between px-3 pt-0 pb-2">
             <div
               className={`flex items-center gap-1 rounded-md px-2 py-1 text-xs ${
                 project.isWorking

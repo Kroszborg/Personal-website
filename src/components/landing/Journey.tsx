@@ -1,39 +1,54 @@
+'use client';
+
 import { journeyItems } from '@/config/Journey';
 import { ArrowRight } from 'lucide-react';
+import { motion } from 'motion/react';
 import { Link } from 'next-view-transitions';
-import React from 'react';
+import React, { useState } from 'react';
 
-import Container from '../common/Container';
 import SectionHeading from '../common/SectionHeading';
-import { Card } from '../ui/card';
+
+function JourneyRow({ item }: { item: (typeof journeyItems)[number] }) {
+  const [hovered, setHovered] = useState(false);
+  const Icon = item.icon as React.ComponentType<{ className?: string }>;
+
+  return (
+    <Link
+      href={item.href}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      className="border-border/50 group flex items-center justify-between gap-4 border-b py-3 last:border-0"
+    >
+      <div className="flex items-center gap-3">
+        <div className="text-muted-foreground group-hover:text-foreground transition-colors">
+          <Icon className="size-4" />
+        </div>
+        <div>
+          <p className="group-hover:text-foreground text-sm font-medium transition-colors">
+            {item.name}
+          </p>
+          <p className="text-muted-foreground text-xs">{item.description}</p>
+        </div>
+      </div>
+      <motion.div
+        animate={{ x: hovered ? 3 : 0, opacity: hovered ? 1 : 0.3 }}
+        transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+      >
+        <ArrowRight className="text-muted-foreground size-3.5" />
+      </motion.div>
+    </Link>
+  );
+}
 
 export default function Journey() {
   return (
-    <Container className="mt-10">
+    <section className="border-border/50 border-b py-12 last:border-0">
       <SectionHeading subHeading="My" heading="Journey" />
-      <div className="mt-8 flex flex-col gap-4">
+      <div className="mt-6">
         {journeyItems.map((item) => (
-          <Link className="group" href={item.href} key={item.name}>
-            <Card className="flex flex-row items-center justify-between gap-4 px-4 py-2">
-              <div className="bg-muted flex items-center justify-center rounded-md p-2">
-                {(() => {
-                  const Icon = item.icon as React.ComponentType<{
-                    className?: string;
-                  }>;
-                  return <Icon className="size-4" />;
-                })()}
-              </div>
-              <div className="flex w-full flex-col">
-                <h3 className="text-base font-semibold">{item.name}</h3>
-                <p className="text-muted-foreground text-sm">
-                  {item.description}
-                </p>
-              </div>
-              <ArrowRight className="hidden size-4 transition-all duration-300 group-hover:block" />
-            </Card>
-          </Link>
+          <JourneyRow key={item.name} item={item} />
         ))}
       </div>
-    </Container>
+    </section>
   );
 }

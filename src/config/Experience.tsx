@@ -35,7 +35,7 @@ export interface Experience {
 
 export const experiences: Experience[] = [
   {
-    isCurrent: true,
+    isCurrent: false,
     company: 'Bytehint',
     position: 'MERN Stack Intern',
     location: 'Remote',
@@ -46,7 +46,7 @@ export const experiences: Experience[] = [
       'Working on ecommerce projects focusing on development and testing',
     ],
     startDate: 'Nov 2025',
-    endDate: 'Present',
+    endDate: 'Feb 2026',
     technologies: [
       {
         name: 'Next.js',

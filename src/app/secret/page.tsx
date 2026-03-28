@@ -2,8 +2,8 @@ import Container from '@/components/common/Container';
 import { Separator } from '@/components/ui/separator';
 import { generateMetadata as getMetadata } from '@/config/Meta';
 import { Metadata } from 'next';
+import { Link } from 'next-view-transitions';
 import Image from 'next/image';
-import Link from 'next/link';
 import React from 'react';
 
 export const metadata: Metadata = {
@@ -67,7 +67,7 @@ const SECTIONS = [
 
 export default function SecretPage() {
   return (
-    <Container className="py-16">
+    <Container className="pt-40 pb-16">
       <div className="mx-auto max-w-3xl space-y-10">
         <div className="space-y-2 text-center">
           <h1 className="text-4xl font-bold tracking-tight lg:text-5xl">

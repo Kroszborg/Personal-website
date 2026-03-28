@@ -3,11 +3,9 @@
 import { githubConfig } from '@/config/Github';
 import { useTheme } from 'next-themes';
 import dynamic from 'next/dynamic';
-import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 
-import Container from '../common/Container';
 import GithubIcon from '../svgs/Github';
 import { Button } from '../ui/button';
 
@@ -33,89 +31,34 @@ type GitHubContributionResponse = {
     | 'FOURTH_QUARTILE';
 };
 
-// Helper function to format coding time
-function formatTime(seconds: number): string {
-  const hours = Math.floor(seconds / 3600);
-  const minutes = Math.floor((seconds % 3600) / 60);
-  const secs = seconds % 60;
-
-  const parts: string[] = [];
-  if (hours > 0) parts.push(`${hours}h`);
-  if (minutes > 0) parts.push(`${minutes}m`);
-  if (secs > 0 && hours === 0) parts.push(`${secs}s`);
-
-  return parts.join(' ') || '0s';
-}
-
-// Helper function to filter contributions to past year
 function filterLastYear(contributions: ContributionItem[]): ContributionItem[] {
   const oneYearAgo = new Date();
   oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
-
-  return contributions.filter((item) => {
-    const itemDate = new Date(item.date);
-    return itemDate >= oneYearAgo;
-  });
+  return contributions.filter((item) => new Date(item.date) >= oneYearAgo);
 }
 
 export default function Github() {
   const [contributions, setContributions] = useState<ContributionItem[]>([]);
   const [totalContributions, setTotalContributions] = useState<number>(0);
-  const [codingTime, setCodingTime] = useState<string>('');
-  const [isOnline, setIsOnline] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
   const { theme } = useTheme();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const isDragging = useRef(false);
+  const dragStartX = useRef(0);
+  const dragScrollLeft = useRef(0);
 
   useEffect(() => {
     async function fetchData() {
       try {
         setIsLoading(true);
-
-        // Fetch GitHub contributions
         const response = await fetch(
           `${githubConfig.apiUrl}/${githubConfig.username}.json`,
         );
         const data: { contributions?: unknown[] } = await response.json();
 
-        // Fetch coding time from internal API
-        if (githubConfig.codingTime.enabled) {
-          try {
-            const activityResponse = await fetch('/api/online', {
-              next: { revalidate: 3600 }, // Cache for 1 hour
-            });
-
-            if (activityResponse.ok) {
-              const activityData = await activityResponse.json();
-
-              if (activityData.success && activityData.data) {
-                const isUserOnline = activityData.data.isOnline || false;
-                const dailyHours = activityData.data.dailyActivity?.hours || 0;
-
-                if (dailyHours > 0) {
-                  // Convert hours to seconds for formatting
-                  const dailySeconds = Math.floor(dailyHours * 3600);
-                  setCodingTime(formatTime(dailySeconds));
-                  setIsOnline(isUserOnline);
-                } else {
-                  // No activity today - show offline
-                  setCodingTime('0h');
-                  setIsOnline(false);
-                }
-              }
-            }
-          } catch (error) {
-            console.warn('Failed to fetch activity stats:', error);
-            setIsOnline(false);
-          }
-        }
-
         if (data?.contributions && Array.isArray(data.contributions)) {
-          // Flatten the nested array structure
           const flattenedContributions = data.contributions.flat();
-
-          // Convert contribution levels to numbers
           const contributionLevelMap = {
             NONE: 0,
             FIRST_QUARTILE: 1,
@@ -123,8 +66,6 @@ export default function Github() {
             THIRD_QUARTILE: 3,
             FOURTH_QUARTILE: 4,
           };
-
-          // Transform to the expected format
           const validContributions = flattenedContributions
             .filter(
               (item: unknown): item is GitHubContributionResponse =>
@@ -143,170 +84,115 @@ export default function Github() {
             }));
 
           if (validContributions.length > 0) {
-            // Calculate total contributions
-            const total = validContributions.reduce(
-              (sum, item) => sum + item.count,
-              0,
+            setTotalContributions(
+              validContributions.reduce((sum, item) => sum + item.count, 0),
             );
-            setTotalContributions(total);
-
-            // Filter to show only the past year
-            const filteredContributions = filterLastYear(validContributions);
-            setContributions(filteredContributions);
+            setContributions(filterLastYear(validContributions));
           } else {
             setHasError(true);
           }
         } else {
           setHasError(true);
         }
-      } catch (err) {
-        console.error('Failed to fetch GitHub contributions:', err);
+      } catch {
         setHasError(true);
       } finally {
         setIsLoading(false);
       }
     }
-
     fetchData();
   }, []);
 
-  // Scroll to show current month (right side of heatmap)
   useEffect(() => {
     if (!isLoading && contributions.length > 0 && scrollContainerRef.current) {
-      // Scroll to the end to show current month
       scrollContainerRef.current.scrollLeft =
         scrollContainerRef.current.scrollWidth;
     }
   }, [isLoading, contributions]);
 
   return (
-    <Container className="mt-20">
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-foreground text-2xl font-bold">
-              {githubConfig.title}
-            </h2>
-            <p className="text-muted-foreground text-sm">
-              <b>{githubConfig.username}</b>&apos;s {githubConfig.subtitle}
-            </p>
-            {!isLoading && !hasError && totalContributions > 0 && (
-              <div className="mt-1 flex items-center justify-between gap-4">
-                <p className="text-primary text-sm font-medium">
-                  Total:{' '}
-                  <span className="font-black">
-                    {totalContributions.toLocaleString()}
-                  </span>{' '}
-                  contributions
-                </p>
-
-                {/* Cursor Activity - Right */}
-                {githubConfig.codingTime.enabled && codingTime && (
-                  <div className="text-primary flex items-center gap-2 text-sm font-medium">
-                    {isOnline ? (
-                      <>
-                        <div className="flex items-center gap-1.5">
-                          <span className="relative flex h-2 w-2">
-                            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75"></span>
-                            <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500"></span>
-                          </span>
-                          <span className="text-xs font-semibold">Online</span>
-                        </div>
-                        <Image
-                          src="/company/cursorlogo.png"
-                          alt="Cursor"
-                          className="h-3.5 w-3.5"
-                          width={14}
-                          height={14}
-                        />
-                        <span>Currently coding</span>
-                        <span className="font-black">{codingTime}</span>
-                      </>
-                    ) : (
-                      <>
-                        <div className="flex items-center gap-1.5">
-                          <span className="relative flex h-2 w-2">
-                            <span className="relative inline-flex h-2 w-2 rounded-full bg-gray-400"></span>
-                          </span>
-                          <span className="text-xs font-semibold">Offline</span>
-                        </div>
-                        <Image
-                          src="/company/cursorlogo.png"
-                          alt="Cursor"
-                          className="h-3.5 w-3.5"
-                          width={14}
-                          height={14}
-                        />
-                        <span>Yesterday worked</span>
-                        <span className="font-black">{codingTime}</span>
-                      </>
-                    )}
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
+    <section className="border-border/50 border-b py-12 last:border-0">
+      <div className="mb-8 flex items-end justify-between">
+        <div>
+          <p className="text-muted-foreground text-[10px] font-semibold tracking-[0.2em] uppercase">
+            Activity
+          </p>
+          <h2 className="text-foreground mt-1.5 text-xl font-bold tracking-tight">
+            GitHub
+          </h2>
         </div>
-
-        {/* Content */}
-        {isLoading ? (
-          <div className="flex items-center justify-center py-16">
-            <div className="text-center">
-              <div className="border-primary mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-2 border-t-transparent"></div>
-              <p className="text-muted-foreground text-sm">
-                {githubConfig.loadingState.description}
-              </p>
-            </div>
-          </div>
-        ) : hasError || contributions.length === 0 ? (
-          <div className="text-muted-foreground border-border rounded-xl border-2 border-dashed p-8 text-center">
-            <div className="bg-muted mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full">
-              <GithubIcon className="h-8 w-8" />
-            </div>
-            <p className="mb-2 font-medium">{githubConfig.errorState.title}</p>
-            <p className="mb-4 text-sm">
-              {githubConfig.errorState.description}
-            </p>
-            <Button variant="outline" asChild>
-              <Link
-                href={`https://github.com/${githubConfig.username}`}
-                className="inline-flex items-center gap-2"
-              >
-                <GithubIcon className="h-4 w-4" />
-                {githubConfig.errorState.buttonText}
-              </Link>
-            </Button>
-          </div>
-        ) : (
-          <div className="relative overflow-hidden">
-            <div className="bg-background/50 relative rounded-lg border border-dashed border-black/20 p-6 backdrop-blur-sm dark:border-white/10">
-              <div ref={scrollContainerRef} className="w-full overflow-x-auto">
-                <ActivityCalendar
-                  data={contributions}
-                  blockSize={12}
-                  blockMargin={4}
-                  fontSize={githubConfig.fontSize}
-                  colorScheme={theme === 'dark' ? 'dark' : 'light'}
-                  maxLevel={githubConfig.maxLevel}
-                  hideTotalCount={true}
-                  hideColorLegend={false}
-                  hideMonthLabels={false}
-                  theme={githubConfig.theme}
-                  labels={{
-                    months: githubConfig.months,
-                    weekdays: githubConfig.weekdays,
-                    totalCount: githubConfig.totalCountLabel,
-                  }}
-                  style={{
-                    color: 'rgb(139, 148, 158)',
-                  }}
-                />
-              </div>
-            </div>
-          </div>
+        {!isLoading && !hasError && totalContributions > 0 && (
+          <p className="text-muted-foreground pb-1 text-xs tabular-nums">
+            <span className="text-foreground font-semibold">
+              {totalContributions.toLocaleString()}
+            </span>{' '}
+            this year
+          </p>
         )}
       </div>
-    </Container>
+
+      {isLoading ? (
+        <div className="flex items-center justify-center py-10">
+          <div className="border-border border-t-foreground h-5 w-5 animate-spin rounded-full border-2" />
+        </div>
+      ) : hasError || contributions.length === 0 ? (
+        <div className="border-border flex flex-col items-center gap-3 rounded-lg border border-dashed py-10 text-center">
+          <GithubIcon className="h-7 w-7 opacity-30" />
+          <p className="text-muted-foreground text-sm">
+            {githubConfig.errorState.description}
+          </p>
+          <Button variant="outline" size="sm" asChild>
+            <Link
+              href={`https://github.com/${githubConfig.username}`}
+              className="inline-flex items-center gap-2"
+            >
+              <GithubIcon className="h-3.5 w-3.5" />
+              {githubConfig.errorState.buttonText}
+            </Link>
+          </Button>
+        </div>
+      ) : (
+        <div
+          ref={scrollContainerRef}
+          className="no-scrollbar w-full cursor-grab overflow-x-auto select-none active:cursor-grabbing"
+          onMouseDown={(e) => {
+            isDragging.current = true;
+            dragStartX.current = e.clientX;
+            dragScrollLeft.current =
+              scrollContainerRef.current?.scrollLeft ?? 0;
+          }}
+          onMouseMove={(e) => {
+            if (!isDragging.current || !scrollContainerRef.current) return;
+            scrollContainerRef.current.scrollLeft =
+              dragScrollLeft.current - (e.clientX - dragStartX.current);
+          }}
+          onMouseUp={() => {
+            isDragging.current = false;
+          }}
+          onMouseLeave={() => {
+            isDragging.current = false;
+          }}
+        >
+          <ActivityCalendar
+            data={contributions}
+            blockSize={11}
+            blockMargin={3}
+            fontSize={11}
+            colorScheme={theme === 'dark' ? 'dark' : 'light'}
+            maxLevel={githubConfig.maxLevel}
+            hideTotalCount={true}
+            hideColorLegend={true}
+            hideMonthLabels={false}
+            theme={githubConfig.theme}
+            labels={{
+              months: githubConfig.months,
+              weekdays: githubConfig.weekdays,
+              totalCount: githubConfig.totalCountLabel,
+            }}
+            style={{ color: 'rgb(139, 148, 158)' }}
+          />
+        </div>
+      )}
+    </section>
   );
 }

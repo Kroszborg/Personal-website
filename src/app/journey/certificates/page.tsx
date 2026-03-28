@@ -59,7 +59,7 @@ export default function CertificatesPage() {
   const allCertificates = Array.from(map.values());
 
   return (
-    <Container className="py-16">
+    <Container className="pt-40 pb-16">
       <div className="space-y-8">
         <div className="space-y-4 text-center">
           <h1 className="text-4xl font-bold tracking-tight lg:text-5xl">

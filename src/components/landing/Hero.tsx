@@ -1,24 +1,16 @@
 import { heroConfig, skillComponents, socialLinks } from '@/config/Hero';
 import { parseTemplate } from '@/lib/hero';
-import { cn } from '@/lib/utils';
 import { Link } from 'next-view-transitions';
 import Image from 'next/image';
 import React from 'react';
 
 import Container from '../common/Container';
 import Skill from '../common/Skill';
-import CV from '../svgs/CV';
-import Chat from '../svgs/Chat';
-import { Button } from '../ui/button';
-import { MagneticButton } from '../ui/magnetic-button';
+import { MatrixText } from '../ui/matrix-text';
 import { TextScramble } from '../ui/text-scramble';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
+import HeroCTAButtons from './HeroCTAButtons';
 import SpotifyNowPlaying from './SpotifyNowPlaying';
-
-const buttonIcons = {
-  CV: CV,
-  Chat: Chat,
-};
 
 export default function Hero() {
   const { name, title, avatar, skills, description, buttons } = heroConfig;
@@ -54,73 +46,76 @@ export default function Hero() {
 
   return (
     <Container className="mx-auto max-w-5xl">
-      {/* Image */}
-      <Image
-        src={avatar}
-        alt="hero"
-        width={100}
-        height={100}
-        className="size-24 rounded-full bg-blue-300 dark:bg-yellow-300"
-      />
+      <div className="grid grid-cols-1 gap-8 md:grid-cols-5 md:gap-12">
+        {/* ── Left: text content ── */}
+        <div className="flex flex-col md:col-span-3">
+          {/* Status badge */}
+          <div className="border-border bg-muted/50 text-muted-foreground mb-6 inline-flex w-fit items-center gap-2 rounded-full border px-3 py-1 text-xs backdrop-blur-sm">
+            <span className="relative flex h-1.5 w-1.5">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
+              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-green-500" />
+            </span>
+            Available for work
+          </div>
 
-      {/* Text Area */}
-      <div className="mt-8 flex flex-col gap-2">
-        <h1 className="text-4xl font-bold">
-          Hi, I&apos;m <TextScramble text={name} /> —{' '}
-          <span className="text-secondary">
-            <TextScramble text={title} />
-          </span>
-        </h1>
+          {/* Name + title */}
+          <div className="mb-4">
+            <p className="text-muted-foreground mb-1 text-sm tracking-widest uppercase">
+              Hi, I&apos;m
+            </p>
+            <h1 className="text-5xl leading-[0.95] font-black tracking-tight md:text-6xl">
+              <MatrixText text={name} />
+            </h1>
+            <div className="text-secondary mt-3 text-xl font-medium md:text-2xl">
+              <TextScramble text={title} />
+            </div>
+          </div>
 
-        <div className="mt-4 flex flex-wrap items-center gap-x-1.5 gap-y-2 text-base whitespace-pre-wrap text-neutral-500 md:text-lg">
-          {renderDescription()}
+          {/* Description */}
+          <div className="text-muted-foreground mt-2 flex flex-wrap items-center gap-x-1.5 gap-y-2 text-sm leading-relaxed md:text-base">
+            {renderDescription()}
+          </div>
+
+          {/* CTA Buttons (client — also runs PowerGlitch hook) */}
+          <HeroCTAButtons buttons={buttons} />
+
+          {/* Social links */}
+          <div className="mt-6 flex gap-3">
+            {socialLinks.map((link) => (
+              <Tooltip key={link.name} delayDuration={0}>
+                <TooltipTrigger asChild>
+                  <Link
+                    href={link.href}
+                    className="text-muted-foreground hover:text-foreground flex items-center gap-2 transition-colors"
+                  >
+                    <span className="size-5">{link.icon}</span>
+                  </Link>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{link.name}</p>
+                </TooltipContent>
+              </Tooltip>
+            ))}
+          </div>
+        </div>
+
+        {/* ── Right: avatar + spotify ── */}
+        <div className="flex flex-col items-center gap-4 md:col-span-2 md:items-end">
+          <div id="hero-avatar-glitch" className="relative inline-block">
+            <div className="bg-primary/25 absolute inset-0 rounded-full blur-2xl" />
+            <Image
+              src={avatar}
+              alt={name}
+              width={160}
+              height={160}
+              className="border-border relative size-40 rounded-full border-2 bg-blue-300 object-cover shadow-xl dark:bg-yellow-300"
+              priority
+            />
+          </div>
+
+          <SpotifyNowPlaying />
         </div>
       </div>
-
-      {/* Buttons */}
-      <div className="mt-8 flex gap-4">
-        {buttons.map((button, index) => {
-          const IconComponent =
-            buttonIcons[button.icon as keyof typeof buttonIcons];
-          return (
-            <MagneticButton key={index} asChild className="inline-block">
-              <Button
-                variant={button.variant as 'outline' | 'default'}
-                className={cn(
-                  button.variant === 'outline' && 'inset-shadow-indigo-500',
-                  button.variant === 'default' && 'inset-shadow-indigo-500',
-                )}
-              >
-                {IconComponent && <IconComponent />}
-                <Link href={button.href}>{button.text}</Link>
-              </Button>
-            </MagneticButton>
-          );
-        })}
-      </div>
-
-      {/* Social Links */}
-      <div className="mt-8 flex gap-2">
-        {socialLinks.map((link) => (
-          <Tooltip key={link.name} delayDuration={0}>
-            <TooltipTrigger asChild>
-              <Link
-                href={link.href}
-                key={link.name}
-                className="text-secondary flex items-center gap-2"
-              >
-                <span className="size-6">{link.icon}</span>
-              </Link>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>{link.name}</p>
-            </TooltipContent>
-          </Tooltip>
-        ))}
-      </div>
-
-      {/* Spotify Now Playing */}
-      <SpotifyNowPlaying />
     </Container>
   );
 }

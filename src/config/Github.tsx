@@ -74,7 +74,7 @@ export const githubConfig = {
 
   // ForkYou.dev Coding Time Configuration
   codingTime: {
-    enabled: true, // Set to false to disable coding time display
+    enabled: false, // Set to false to disable coding time display
     username: 'kroszborg', // Your ForkYou.dev username
     displayName: 'Cursor Activity', // Display name (e.g., 'Cursor Activity', 'Coding Time')
   },

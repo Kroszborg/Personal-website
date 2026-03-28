@@ -3,6 +3,14 @@
 @plugin "@tailwindcss/typography";
 
 @font-face {
+  font-family: 'ClashDisplay';
+  src: url('/fonts/ClashDisplay-Variable.ttf') format('truetype');
+  font-weight: 200 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
   font-family: 'Hanken Grotesk';
   src: url('/fonts/HankenGrotesk-Variable.ttf') format('truetype');
 }
@@ -265,4 +273,23 @@
 
 .prose h4 {
   font-size: calc(var(--blog-font-size) * 1.25);
+}
+
+/* Shader background - fixed fullscreen, content scrolls over it */
+.shader-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Building shadow sway — simulates slow sun-angle shift */
+@keyframes shadowSway {
+  0%, 100% { transform: skewX(-19deg); }
+  35%      { transform: skewX(-17deg); }
+  70%      { transform: skewX(-20.5deg); }
 }

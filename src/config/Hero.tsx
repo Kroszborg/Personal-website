@@ -96,7 +96,7 @@ export const heroConfig = {
   buttons: [
     {
       variant: 'outline',
-      text: 'Resume / CV',
+      text: 'Resume',
       href: '/resume',
       icon: 'CV',
     },

@@ -81,7 +81,7 @@ export default async function ProjectCaseStudyPage({
   return (
     <>
       <ReadingProgress />
-      <Container className="py-16">
+      <Container className="pt-40 pb-16">
         <div className="space-y-12">
           {/* Back Button */}
           <div>

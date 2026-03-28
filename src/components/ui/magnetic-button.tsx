@@ -55,7 +55,7 @@ export function MagneticButton({
       <div
         ref={divRef}
         className={cn(
-          'inline-block transition-transform duration-150 ease-out',
+          'inline-block transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]',
           className,
         )}
         style={{
@@ -72,7 +72,10 @@ export function MagneticButton({
   return (
     <button
       ref={buttonRef}
-      className={cn('transition-transform duration-150 ease-out', className)}
+      className={cn(
+        'transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]',
+        className,
+      )}
       style={{
         transform: `translate(${transform.x}px, ${transform.y}px)`,
       }}

@@ -10,9 +10,13 @@ export default function SectionHeading({
   heading,
 }: SectionHeadingProps) {
   return (
-    <div>
-      <p className="text-secondary text-sm">{subHeading}</p>
-      <h2 className="text-2xl font-bold">{heading}</h2>
+    <div className="mb-6">
+      <p className="text-muted-foreground mb-1.5 text-[10px] font-semibold tracking-[0.22em] uppercase">
+        {subHeading}
+      </p>
+      <h2 className="text-foreground text-xl font-bold tracking-tight">
+        {heading}
+      </h2>
     </div>
   );
 }

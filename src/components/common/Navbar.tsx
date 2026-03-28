@@ -6,40 +6,40 @@ import Image from 'next/image';
 import React from 'react';
 
 import { CommandPalette } from './CommandPalette';
-import Container from './Container';
 import { SearchTrigger } from './SearchTrigger';
 import { ThemeToggleButton } from './ThemeSwitch';
 
 export default function Navbar() {
   return (
     <>
-      <Container className="sticky top-0 z-20 rounded-md py-4 backdrop-blur-sm">
-        <div className="flex items-center justify-between px-6">
-          <div className="flex items-baseline gap-4">
-            <Link href="/">
+      <nav className="border-border/40 bg-background/80 fixed top-6 left-1/2 z-50 h-12 -translate-x-1/2 rounded-full border shadow-lg backdrop-blur-xl transition-all duration-300">
+        <div className="mx-auto flex h-full max-w-5xl items-center justify-between px-5">
+          <div className="flex items-center gap-6">
+            <Link href="/" className="group flex items-center gap-2.5">
               <Image
-                className="h-12 w-12 rounded-md border border-gray-200 bg-blue-300 transition-all duration-300 ease-in-out hover:scale-90 dark:bg-green-300"
+                className="h-6 w-6 rounded transition-opacity group-hover:opacity-70"
                 src={navbarConfig.logo.src}
                 alt={navbarConfig.logo.alt}
-                width={navbarConfig.logo.width}
-                height={navbarConfig.logo.height}
+                width={24}
+                height={24}
               />
+              <span className="text-sm font-semibold">Abhiman</span>
             </Link>
-            <div className="hidden items-center justify-center gap-4 md:flex">
+            <div className="hidden items-center gap-5 md:flex">
               {navbarConfig.navItems.map((item) => (
                 <Link
-                  className={
-                    item.invisible
-                      ? 'group inline-block min-w-[4rem] py-1 text-center transition-all duration-300 ease-in-out hover:underline hover:decoration-2 hover:underline-offset-4'
-                      : 'transition-all duration-300 ease-in-out hover:underline hover:decoration-2 hover:underline-offset-4'
-                  }
                   key={item.label}
                   href={item.href}
+                  className={
+                    item.invisible
+                      ? 'group text-muted-foreground hover:text-foreground text-xs transition-colors'
+                      : 'text-muted-foreground hover:text-foreground text-xs transition-colors'
+                  }
                 >
                   <span
                     className={
                       item.invisible
-                        ? 'group-hover:text-foreground text-transparent transition-colors duration-300'
+                        ? 'opacity-0 transition-opacity group-hover:opacity-100'
                         : undefined
                     }
                   >
@@ -54,7 +54,7 @@ export default function Navbar() {
             <ThemeToggleButton variant="circle" start="top-right" blur />
           </div>
         </div>
-      </Container>
+      </nav>
       <CommandPalette />
     </>
   );

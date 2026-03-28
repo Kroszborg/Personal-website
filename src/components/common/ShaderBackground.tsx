@@ -73,7 +73,7 @@ const fragmentShader = `
 
   void main() {
     vec2 uv = vUv;
-    float t = uTime * 0.12;
+    float t = uTime * 0.05;
 
     // ── Layer 1: large slow warp ─────────────────────────────
     vec2 q;
