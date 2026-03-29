@@ -18,10 +18,10 @@ export default function page() {
       {/* Content */}
       <div className="relative z-10 min-h-screen">
         <div className="mx-auto max-w-6xl px-6 pt-40 pb-16">
-          <div className="flex gap-12">
-            {/* Left: Hero sidebar - fixed width */}
-            <aside className="hidden w-64 shrink-0 lg:block">
-              <div className="sticky top-32">
+          <div className="flex flex-col gap-12 lg:flex-row">
+            {/* Left: Hero sidebar - shown at top on mobile, left side on desktop */}
+            <aside className="w-full lg:w-64 lg:shrink-0">
+              <div className="lg:sticky lg:top-32">
                 <HeroSidebar />
               </div>
             </aside>
