@@ -18,6 +18,30 @@ import './globals.css';
 
 export const metadata = getMetadata('/');
 
+// Inline script to prevent theme flash/stuck issues
+function ThemeInitializer() {
+  return (
+    <script
+      dangerouslySetInnerHTML={{
+        __html: `
+          (function() {
+            try {
+              var stored = localStorage.getItem('portfolio-theme');
+              if (stored) {
+                if (stored === 'dark') document.documentElement.classList.add('dark');
+                else if (stored === 'light') document.documentElement.classList.remove('dark');
+              } else {
+                var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                if (prefersDark) document.documentElement.classList.add('dark');
+              }
+            } catch(e) {}
+          })();
+        `,
+      }}
+    />
+  );
+}
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -26,12 +50,14 @@ export default function RootLayout({
   return (
     <ViewTransitions>
       <html lang="en" suppressHydrationWarning>
+        <ThemeInitializer />
         <body className="font-hanken-grotesk antialiased">
           <ThemeProvider
             attribute="class"
-            defaultTheme="system"
+            defaultTheme="dark"
             enableSystem
             disableTransitionOnChange
+            storageKey="portfolio-theme"
           >
             <ShaderBackground />
             <LenisRoot>
