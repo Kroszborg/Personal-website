@@ -1,7 +1,14 @@
+import Bun from '@/components/technologies/Bun';
+import Expo from '@/components/technologies/Expo';
 import FFmpeg from '@/components/technologies/FFmpeg';
+import Github from '@/components/technologies/Github';
+import Go from '@/components/technologies/Go';
 import NextJs from '@/components/technologies/NextJs';
+import NodeJs from '@/components/technologies/NodeJs';
 import OpenAI from '@/components/technologies/OpenAI';
+import PostgreSQL from '@/components/technologies/PostgreSQL';
 import ReactIcon from '@/components/technologies/ReactIcon';
+import Supabase from '@/components/technologies/Supabase';
 import TailwindCss from '@/components/technologies/TailwindCss';
 import ThreeJs from '@/components/technologies/ThreeJs';
 import TypeScript from '@/components/technologies/TypeScript';
@@ -9,6 +16,60 @@ import Vercel from '@/components/technologies/Vercel';
 import { Project } from '@/types/project';
 
 export const projects: Project[] = [
+  {
+    title: 'GearOne',
+    description:
+      'Smart Automobile Service Platform - Production-ready mobile app ecosystem with React Native, Node.js backend, Next.js admin dashboard, and Razorpay payment integration deployed to Google Play',
+    image: '/project/gearon.svg',
+    link: 'https://play.google.com/store/apps/details?id=com.gearon.gearonjaipur&hl=en_IN',
+    technologies: [
+      { name: 'React Native', icon: <ReactIcon key="react-native" /> },
+      { name: 'Expo', icon: <Expo key="expo" /> },
+      { name: 'Node.js', icon: <NodeJs key="nodejs" /> },
+      { name: 'Supabase', icon: <Supabase key="supabase" /> },
+      { name: 'PostgreSQL', icon: <PostgreSQL key="postgresql" /> },
+      { name: 'TypeScript', icon: <TypeScript key="typescript" /> },
+    ],
+    live: 'https://play.google.com/store/apps/details?id=com.gearon.gearonjaipur&hl=en_IN',
+    details: true,
+    projectDetailsPageSlug: '/projects/gearon',
+    isWorking: true,
+  },
+  {
+    title: 'Sugi',
+    description:
+      'Terminal UI Git Client - Feature-rich TUI git client in Go with GitHub/GitLab PR management, AI-powered commit messages, interactive rebase, bisect, worktrees, and multi-account support',
+    image: '/project/sugi.svg',
+    link: 'https://github.com/Kroszborg/sugi',
+    technologies: [
+      { name: 'Go', icon: <Go key="go" /> },
+      { name: 'GitHub', icon: <Github key="github" /> },
+    ],
+    github: 'https://github.com/Kroszborg/sugi',
+    live: 'https://github.com/Kroszborg/sugi',
+    details: true,
+    projectDetailsPageSlug: '/projects/sugi',
+    isWorking: true,
+  },
+  {
+    title: 'LaunchKit',
+    description:
+      'AI Launch Copy Generator - Paste a GitHub URL or describe your project and instantly get landing page copy, platform-tuned social posts for Twitter/X, LinkedIn, Product Hunt, and a perfect pitch',
+    image: '/project/launchkit.svg',
+    link: 'https://github.com/Kroszborg/launchkit-4951',
+    technologies: [
+      { name: 'Next.js', icon: <NextJs key="nextjs" /> },
+      { name: 'TypeScript', icon: <TypeScript key="typescript-lk" /> },
+      { name: 'Google AI', icon: <OpenAI key="openai" /> },
+      { name: 'Tailwind CSS', icon: <TailwindCss key="tailwind" /> },
+      { name: 'Bun', icon: <Bun key="bun" /> },
+    ],
+    github: 'https://github.com/Kroszborg/launchkit-4951',
+    live: 'https://github.com/Kroszborg/launchkit-4951',
+    details: true,
+    projectDetailsPageSlug: '/projects/launchkit',
+    isWorking: true,
+  },
   {
     title: 'ZAxis',
     description:

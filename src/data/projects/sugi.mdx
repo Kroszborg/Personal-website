@@ -1,0 +1,131 @@
+---
+title: 'Sugi - Terminal UI Git Client'
+description: 'Feature-rich TUI git client in Go with GitHub/GitLab PR management, AI-powered commit messages, interactive rebase, bisect tools, worktree management, and multi-account support'
+image: '/project/sugi.svg'
+technologies: ['Go', 'Bubbletea', 'Cobra', 'Lipgloss', 'GitHub API', 'GitLab API', 'Groq AI']
+github: 'https://github.com/Kroszborg/sugi'
+live: 'https://github.com/Kroszborg/sugi'
+timeline: 'Ongoing'
+role: 'Solo Developer'
+team: 'Solo'
+status: 'completed'
+featured: true
+challenges:
+  - 'Building a responsive terminal UI that adapts to different terminal widths'
+  - 'Real-time git state synchronization across all panels'
+  - 'AI commit message generation with free Groq inference'
+  - 'Implementing interactive rebase and conflict resolution in a TUI'
+  - 'Cross-platform support via npm, Homebrew, and Go install'
+learnings:
+  - 'Go programming language and idiomatic patterns'
+  - 'TUI development with the Charm Bracelet ecosystem (Bubbletea, Bubbles, Lipgloss)'
+  - 'CLI architecture and command routing with Cobra'
+  - 'GitHub and GitLab REST API integration'
+  - 'Building and publishing multi-platform CLI packages'
+isPublished: true
+---
+
+# Sugi - Terminal UI Git Client
+
+## Overview
+
+Sugi (杉 — *cedar tree, grows fast, stands tall, shaped with precision*) is a terminal UI git client written in Go that brings GitHub and GitLab pull request management, AI-powered commit messages, interactive rebase, bisect tools, worktree management, and multi-account support directly into your terminal.
+
+Built entirely in Go using the Charm Bracelet TUI ecosystem, Sugi is designed to replace or complement traditional CLI git workflows with a rich, keyboard-driven interface that stays entirely in the terminal.
+
+Installable via npm, Homebrew, or `go install` — published and available for use.
+
+## Key Features
+
+### Core Git Panels
+
+- **Files** – Stage and unstage individual files or hunks interactively
+- **Branches** – Checkout, merge, and rebase branches from the UI
+- **Commits** – Full log with ASCII graph, cherry-pick, revert, and bisect
+- **Diff** – Unified diff view with hunk-level navigation
+- **Stash** – List, apply, pop, and drop stashes with diff preview
+
+### PR/MR Integration
+
+- GitHub and GitLab pull request and merge request management built in
+- CI badge display and review status per PR/MR
+- Create, view, and manage PRs without leaving the terminal
+
+### AI-Powered Commit Messages
+
+- Generates commit messages using free Groq AI inference (`llama-3.1-8b-instant`)
+- Diff-aware summaries: feeds the staged diff to the model for accurate messages
+- Configurable model via `~/.config/sugi/config.json`
+
+### Multi-Account Management
+
+- Named token support for personal and work GitHub/GitLab accounts
+- Easy context switching between accounts within the same session
+- Secure token storage with per-host configuration
+
+### Advanced Git Features
+
+- **Interactive Rebase** – Full rebase workflow (pick, squash, reorder, drop) in the TUI
+- **Git Bisect** – Step through bisect sessions interactively
+- **File Blame** – Line-by-line blame view with commit details
+- **Reflog** – Browse and restore from reflog entries
+- **Worktree Management** – Create, switch, and remove worktrees from the UI
+- **Remote Management** – Add, remove, and fetch remotes
+
+### Command Palette
+
+- Fuzzy search across all available actions via `ctrl+p`
+- Full keyboard-first navigation throughout the interface
+- Responsive layout that adapts for narrow terminals under 100 columns
+
+## Tech Stack
+
+- **Go 1.24** – Core language; fast binaries, easy cross-compilation
+- **Bubbletea** – Elm-inspired TUI framework for reactive terminal UIs
+- **Bubbles** – Pre-built TUI components (viewport, list, spinner, textinput)
+- **Lipgloss** – Declarative terminal styling and layout
+- **Cobra** – CLI command routing and flag parsing
+- **Groq AI** – Free LLM inference for commit message generation
+- **GitHub REST API** – PR and CI integration
+- **GitLab REST API** – MR integration
+
+## Technical Implementation
+
+### TUI Architecture
+
+Sugi uses Bubbletea's Elm-inspired Model-Update-View architecture. Each panel (Files, Branches, Commits, Diff, Stash) is an independent Bubbletea model with its own update loop, composed into a parent application model. Lipgloss handles all layout and styling, with responsive breakpoints for narrow terminals.
+
+### Git State Management
+
+Git operations are performed via Go's `os/exec` wrapping standard git commands, keeping the implementation dependency-free and compatible with any git version. State synchronization is triggered on key actions and refreshed on window focus to keep panels accurate.
+
+### AI Integration
+
+Staged diffs are piped to the Groq API (free tier, no key required by default) using the `llama-3.1-8b-instant` model. The prompt is engineered to produce conventional commit format messages. The model and API key are fully configurable.
+
+### Distribution
+
+Sugi is built and released via GitHub Actions across Linux, macOS (Intel + ARM), and Windows. Distributed as:
+
+- **npm**: `npm install -g @kroszborg/sugi`
+- **Homebrew**: `brew install Kroszborg/tap/sugi`
+- **Go**: `go install github.com/Kroszborg/sugi/cmd/sugi@latest`
+
+## What I Learned
+
+Building Sugi taught me:
+
+- Idiomatic Go programming, concurrency patterns, and error handling
+- Terminal UI design constraints and Bubbletea's reactive architecture
+- How to build and distribute cross-platform CLI tools at scale
+- GitHub and GitLab API surface for PR/MR, CI, and review workflows
+- Prompt engineering for practical AI-assisted developer tooling
+
+## Impact
+
+Sugi brings a full Git UI workflow — staging, branching, PR management, and AI commit messages — into the terminal without requiring a GUI application or web browser. Distributed across npm, Homebrew, and Go, it's accessible to developers across all platforms.
+
+- **Zero Context Switch** – Stay in the terminal through the entire git workflow
+- **Free AI** – Commit messages without an OpenAI subscription
+- **Multi-Platform** – npm, Homebrew, and go install support out of the box
+- **Polyglot Showcase** – Demonstrates Go fluency alongside the JavaScript/TypeScript stack

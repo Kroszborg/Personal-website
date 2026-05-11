@@ -1,0 +1,131 @@
+---
+title: 'GearOne - Smart Automobile Service Platform'
+description: 'Production-ready automobile service ecosystem built with React Native, backend infrastructure, admin systems, payment integrations, and cross-platform deployments'
+image: '/project/gearon.svg'
+technologies: ['React Native', 'Expo', 'Node.js', 'Express', 'Supabase', 'PostgreSQL', 'TypeScript', 'Next.js', 'Razorpay', 'NativeWind']
+github: ''
+live: 'https://play.google.com/store/apps/details?id=com.gearon.gearonjaipur&hl=en_IN'
+timeline: '4 months'
+role: 'Full Stack & Mobile App Developer'
+team: 'Startup Team'
+status: 'completed'
+featured: true
+challenges:
+  - 'Building a scalable end-to-end app ecosystem across mobile, admin, and backend'
+  - 'Cross-platform deployment and testing for Android and iOS'
+  - 'Payment integration and transactional workflow handling with Razorpay'
+  - 'Real-time booking tracking and order management via Supabase Realtime'
+  - 'Backend architecture and admin panel system design for internal teams'
+learnings:
+  - 'Production mobile app deployment workflows for Android and iOS'
+  - 'React Native and Expo architecture with file-based routing'
+  - 'Payment gateway integration in a production environment'
+  - 'Backend scaling, API design, and Row Level Security with Supabase'
+  - 'Admin dashboard design and operational tooling for internal teams'
+isPublished: true
+---
+
+# GearOne - Smart Automobile Service Platform
+
+## Overview
+
+GearOne is a full-stack automobile service platform built to streamline vehicle servicing, bookings, tracking, and customer management through a modern mobile-first experience.
+
+The project involved building not only the React Native application, but also the backend systems, admin panel, operational workflows, payment integrations, and production deployment pipelines for both Android and iOS.
+
+The platform focused heavily on real-world operational workflows including service booking management, customer tracking, notifications, payments, and dashboard systems for internal operations.
+
+## Key Features
+
+### Cross-Platform Mobile Application
+
+- Built using React Native with Expo for Android and iOS
+- Responsive and optimized mobile UI with NativeWind (Tailwind for React Native)
+- Real-time workflow updates and booking management via Supabase Realtime
+- Authentication with email, Google Sign-In, and Apple Sign-In
+- Multi-language support across English, Hindi, Tamil, and Telugu
+- In-app push notifications via Expo Push Network
+
+### Backend & API Infrastructure
+
+- Developed Node.js/Express backend systems and REST API integrations
+- Structured scalable service and order workflows with modular architecture
+- Integrated customer and booking management with Supabase (PostgreSQL)
+- Managed operational business logic, tracking systems, and Redis caching
+- Swagger API documentation and health check endpoint
+
+### Admin Dashboard & Operations
+
+- Built a Next.js 15 internal admin panel for managing services and customers
+- Tracking systems for service lifecycle management (bookings, vehicles, vendors)
+- Dashboard with Recharts analytics for monitoring operational data
+- Centralized management interfaces: bookings, users, vendors, offers, events
+- Role-based access control with Supabase Row Level Security
+
+### Payment & Transaction Systems
+
+- Integrated Razorpay payment workflows for booking checkout
+- Managed payment verification and transactional state synchronization
+- Built reliable booking and payment state handling across mobile and backend
+- Improved overall checkout and payment UX with real-time confirmation
+
+### Deployment & Production Workflows
+
+- Managed Android production build and Google Play Store submission
+- iOS deployment via EAS Build and EAS Submit (no Mac required)
+- Backend deployed on Render with auto-deploy from main branch
+- Admin panel deployed on Vercel with automatic CI/CD
+- Environment configuration, testing, and production readiness
+
+## Tech Stack
+
+- **React Native + Expo** – Cross-platform mobile development with file-based routing
+- **NativeWind** – Tailwind CSS for React Native UI
+- **Node.js + Express** – Backend infrastructure and REST APIs
+- **Supabase** – Authentication, PostgreSQL database, and Realtime subscriptions
+- **Next.js 15** – Admin panel with App Router
+- **Razorpay** – Payment gateway integration
+- **TypeScript** – Type safety across all codebases
+- **Redis (Upstash)** – Optional caching layer for performance
+- **Zustand + React Query** – State management across mobile and admin
+
+## Technical Implementation
+
+### Mobile Architecture
+
+Built scalable React Native frontend architecture using Expo Router (file-based routing), managing navigation, state handling via Zustand and Tanstack React Query, and API communication via Axios with retry logic. NativeWind enabled Tailwind-style responsive UI. Multi-language support handled via i18n-js across four languages.
+
+### Backend Systems
+
+Designed modular Express API routes organized by domain (bookings, vehicles, vendors, payments). Integrated Supabase for authentication and Row Level Security policies across all database tables. Built service lifecycle tracking and Expo Push notification delivery via expo-server-sdk. Nodemailer for transactional email.
+
+### Payment Integration
+
+Implemented Razorpay payment workflows securely within the React Native app using react-native-razorpay. Backend webhook handling verified payment signatures and synced booking/payment state. Added transactional validation to ensure reliable checkout flows.
+
+### Production Deployment
+
+Configured Android builds using Expo's EAS Build with gradlew bundleRelease for Play Store submission. iOS handled entirely via EAS Build and EAS Submit without requiring a Mac. Backend on Render with auto-deploy; admin panel on Vercel with GitHub integration.
+
+## What I Learned
+
+Building GearOne taught me:
+
+- Managing complete startup product ecosystems end-to-end
+- Shipping and maintaining production mobile applications on both stores
+- Structuring scalable backend and operational systems with Node.js
+- Handling payment gateway integrations in a real production environment
+- Managing deployment pipelines for Android and iOS simultaneously
+- Designing systems for real-world operational workflows at a startup
+
+## Impact
+
+GearOne helped digitize and streamline operational workflows for automobile servicing through a centralized mobile platform and admin ecosystem.
+
+The platform provided:
+
+- **Faster Service Management** – Simplified booking and operational workflows for internal teams
+- **Improved User Experience** – Modern responsive cross-platform mobile UI for customers
+- **Centralized Operations** – Admin systems for tracking services, vendors, and workflow management
+- **Scalable Infrastructure** – Production-ready backend and API architecture for growth
+- **Real-World Deployment Experience** – End-to-end product shipping and maintenance across mobile stores

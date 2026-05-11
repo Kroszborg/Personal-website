@@ -1,0 +1,114 @@
+---
+title: 'LaunchKit - AI Launch Copy Generator'
+description: 'AI-powered web app that generates launch-ready marketing copy — landing page headlines, social posts for Twitter/X, LinkedIn, and Product Hunt, plus a one-sentence perfect pitch'
+image: '/project/launchkit.svg'
+technologies: ['Next.js', 'TypeScript', 'Google AI SDK', 'Vercel AI SDK', 'Tailwind CSS', 'Bun', 'Zod']
+github: 'https://github.com/Kroszborg/launchkit-4951'
+live: 'https://github.com/Kroszborg/launchkit-4951'
+timeline: '1 month'
+role: 'Full Stack Developer'
+team: 'Solo'
+status: 'completed'
+featured: false
+challenges:
+  - 'Streaming AI responses in real-time with a typewriter effect'
+  - 'Generating platform-specific copy that fits each channel tone'
+  - 'Parsing GitHub README content to extract project context'
+  - 'Designing a high-quality editorial output experience without signup friction'
+learnings:
+  - 'Vercel AI SDK streaming with server actions and edge functions'
+  - 'Google AI SDK and Gemini model integration'
+  - 'Next.js 15 App Router patterns with Turbopack'
+  - 'AI prompt engineering for consistent structured output'
+  - 'Editorial UI/UX design principles for developer tools'
+isPublished: true
+---
+
+# LaunchKit - AI Launch Copy Generator
+
+## Overview
+
+LaunchKit is an AI-powered web application that turns a GitHub URL or plain-text project description into launch-ready marketing copy — instantly, with no signup required.
+
+Paste your GitHub repo URL or describe what you built, and LaunchKit generates a complete launch package: a landing page with headline, subheadline, feature bullets, and CTA; platform-specific social posts for Twitter/X, LinkedIn, and Product Hunt; plus a single-sentence perfect pitch ready for bios and cold emails.
+
+Built with Next.js 15, Google AI SDK (Gemini), and the Vercel AI SDK for streaming responses, LaunchKit focuses on editorial quality output with a high-contrast dark design system.
+
+## Key Features
+
+### Landing Page Copy Generator
+
+- Generates a complete landing page copy structure from your project description
+- Includes: headline, subheadline, three feature bullets, and a call-to-action
+- Output is launch-ready with no editing required
+
+### Platform-Specific Social Posts
+
+- **Twitter/X** – Concise, punchy post optimized for the 280-character format and developer audience
+- **LinkedIn** – Professional narrative post with structured formatting for broader reach
+- **Product Hunt** – Tagline + description optimized for the PH launch format and community
+
+### Perfect Pitch Generator
+
+- One-sentence product description engineered for bios, cold emails, and intros
+- Captures what the product does, who it's for, and why it matters
+- No filler language — sharp and specific output
+
+### No Signup Required
+
+- Fully functional without authentication
+- GitHub URL support: fetches and parses the project README to extract context
+- Results stream in real-time with a typewriter effect as the AI generates
+
+## Tech Stack
+
+- **Next.js 15** – App Router with Turbopack dev server for fast iteration
+- **React 19** – Modern React with server components and streaming
+- **TypeScript** – Strict typing throughout
+- **Google AI SDK** – Gemini model integration via `@ai-sdk/google`
+- **Vercel AI SDK** – Streaming responses and `useObject`/`streamText` patterns
+- **Tailwind CSS 4** – Utility-first styling with the latest v4 architecture
+- **Bun** – Fast package manager and runtime
+- **Zod** – Schema validation for structured AI output
+
+## Technical Implementation
+
+### AI Streaming Architecture
+
+LaunchKit uses the Vercel AI SDK's `streamText` and `streamObject` to pipe Gemini model responses directly to the client as they generate. The frontend uses `useStreamableValue` and custom typewriter animations to display output progressively, giving users immediate feedback without waiting for full completion.
+
+### Prompt Engineering
+
+The generation is split into separate prompts for each output section (landing page, Twitter, LinkedIn, Product Hunt, pitch), each with distinct tone and format instructions. A large landing page template in `lib/landing-template.ts` (26KB) guides the model toward production-quality marketing copy with specific structural requirements.
+
+### GitHub README Parsing
+
+When a GitHub URL is provided, LaunchKit fetches the repository's raw README content via the GitHub raw content API, strips Markdown formatting, and feeds the cleaned text as project context to the generation prompts. This enables high-quality output for existing projects without manual description.
+
+### Design System
+
+LaunchKit uses an editorial, high-contrast dark design aesthetic:
+- Background: `#0a0a0a` (near-black)
+- Accents: warm off-white `#e8e0d0` and muted ochre tones
+- Typography: Playfair Display (serif headlines), DM Mono (body and code)
+- UI: flat outlined buttons, dark inputs, sharp-cornered cards — no neon or gradients
+- Motion: fade-up reveals on load, streaming typewriter text output
+
+## What I Learned
+
+Building LaunchKit taught me:
+
+- How to build streaming AI applications with the Vercel AI SDK and Google Gemini
+- Next.js 15 App Router patterns, server actions, and edge function routing
+- Practical AI prompt engineering for consistent, structured marketing output
+- How to design developer tools with an editorial aesthetic and zero friction
+- Bun as a drop-in replacement for npm/node in a production Next.js stack
+
+## Impact
+
+LaunchKit removes the most time-consuming part of launching a side project — writing the copy — and makes it instant.
+
+- **Zero Friction** – No account, no payment, no configuration required
+- **Multi-Channel** – One input generates copy for four different platforms simultaneously
+- **GitHub Native** – Works directly from a repo URL, no manual description needed
+- **Developer First** – Editorial design that fits the aesthetic of premium dev tools
