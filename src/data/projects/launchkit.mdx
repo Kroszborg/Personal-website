@@ -4,23 +4,24 @@ description: 'AI-powered web app that generates launch-ready marketing copy — 
 image: '/project/launchkit.webp'
 technologies: ['Next.js', 'TypeScript', 'Google AI SDK', 'Vercel AI SDK', 'Tailwind CSS', 'Bun', 'Zod']
 github: 'https://github.com/Kroszborg/launchkit-4951'
-live: 'https://github.com/Kroszborg/launchkit-4951'
+live: 'https://launchkit.kroszborg.co'
 timeline: '1 month'
 role: 'Full Stack Developer'
 team: 'Solo'
 status: 'completed'
-featured: false
+featured: true
 challenges:
-  - 'Streaming AI responses in real-time with a typewriter effect'
-  - 'Generating platform-specific copy that fits each channel tone'
-  - 'Parsing GitHub README content to extract project context'
-  - 'Designing a high-quality editorial output experience without signup friction'
+  - 'Streaming AI responses in real-time with a smooth typewriter effect'
+  - 'Generating platform-specific copy that fits each channel tone and format constraints'
+  - 'Parsing GitHub README content reliably to extract meaningful project context'
+  - 'Prompt engineering for consistent, structured marketing output across 4 output types'
+  - 'Designing an editorial-quality UI without frontend framework overhead'
 learnings:
-  - 'Vercel AI SDK streaming with server actions and edge functions'
-  - 'Google AI SDK and Gemini model integration'
-  - 'Next.js 15 App Router patterns with Turbopack'
-  - 'AI prompt engineering for consistent structured output'
-  - 'Editorial UI/UX design principles for developer tools'
+  - 'Vercel AI SDK streaming patterns with server actions and edge functions'
+  - 'Google AI SDK and Gemini model integration and prompt design'
+  - 'Next.js 15 App Router with Turbopack for fast development iteration'
+  - 'AI prompt engineering for consistent structured output across multiple output types'
+  - 'Editorial UI/UX design principles for developer-focused tools'
 isPublished: true
 ---
 
@@ -28,87 +29,110 @@ isPublished: true
 
 ## Overview
 
-LaunchKit is an AI-powered web application that turns a GitHub URL or plain-text project description into launch-ready marketing copy — instantly, with no signup required.
+LaunchKit is an AI-powered web application that turns a GitHub URL or plain-text project description into a complete launch package — instantly, with no signup required.
 
-Paste your GitHub repo URL or describe what you built, and LaunchKit generates a complete launch package: a landing page with headline, subheadline, feature bullets, and CTA; platform-specific social posts for Twitter/X, LinkedIn, and Product Hunt; plus a single-sentence perfect pitch ready for bios and cold emails.
+Paste your repo URL or describe what you built, and LaunchKit generates: a full landing page (headline, subheadline, feature bullets, CTA), platform-tuned social posts for Twitter/X, LinkedIn, and Product Hunt, and a single-sentence perfect pitch for bios and cold emails. Everything streams in real time as the model generates.
 
-Built with Next.js 15, Google AI SDK (Gemini), and the Vercel AI SDK for streaming responses, LaunchKit focuses on editorial quality output with a high-contrast dark design system.
+**Live at [launchkit.kroszborg.co](https://launchkit.kroszborg.co)**
+
+## Problem Statement
+
+Launching a side project requires writing the same information in five different formats for five different audiences — a landing page, a Twitter thread, a LinkedIn post, a Product Hunt tagline, and a one-liner pitch. This context-switching writing work takes hours and often gets skipped entirely, leading to projects that ship quietly with no audience. There was no tool that handled all of it from a single input.
 
 ## Key Features
 
 ### Landing Page Copy Generator
 
 - Generates a complete landing page copy structure from your project description
-- Includes: headline, subheadline, three feature bullets, and a call-to-action
-- Output is launch-ready with no editing required
+- Headline, subheadline, three feature bullets, and a call-to-action — all in one pass
+- Output is launch-ready with no editing required for most projects
+- Informed by a 26KB landing page template (`lib/landing-template.ts`) engineered for high-converting structure
 
 ### Platform-Specific Social Posts
 
-- **Twitter/X** – Concise, punchy post optimized for the 280-character format and developer audience
-- **LinkedIn** – Professional narrative post with structured formatting for broader reach
-- **Product Hunt** – Tagline + description optimized for the PH launch format and community
+- **Twitter/X** – Concise, punchy post optimized for the 280-character constraint and developer audience tone
+- **LinkedIn** – Professional narrative post with structured formatting for broader reach and discoverability
+- **Product Hunt** – Tagline and description formatted specifically for PH launch day community norms
+- Each platform gets its own dedicated prompt with channel-specific tone, length, and structural rules
 
 ### Perfect Pitch Generator
 
-- One-sentence product description engineered for bios, cold emails, and intros
-- Captures what the product does, who it's for, and why it matters
-- No filler language — sharp and specific output
+- One-sentence product description engineered for bios, cold emails, and intro conversations
+- Captures what the product does, who it's for, and why it matters — no filler language
+- Structured to work as a standalone sentence in any context
 
 ### No Signup Required
 
-- Fully functional without authentication
-- GitHub URL support: fetches and parses the project README to extract context
-- Results stream in real-time with a typewriter effect as the AI generates
+- Fully functional without any account, payment, or API key
+- GitHub URL support: fetches the repository's raw README, strips Markdown, uses it as project context
+- All 4 output types stream in real time with a typewriter animation as the model generates
+- Results appear section by section — no waiting for everything to finish before seeing output
 
 ## Tech Stack
 
-- **Next.js 15** – App Router with Turbopack dev server for fast iteration
-- **React 19** – Modern React with server components and streaming
-- **TypeScript** – Strict typing throughout
-- **Google AI SDK** – Gemini model integration via `@ai-sdk/google`
-- **Vercel AI SDK** – Streaming responses and `useObject`/`streamText` patterns
-- **Tailwind CSS 4** – Utility-first styling with the latest v4 architecture
-- **Bun** – Fast package manager and runtime
-- **Zod** – Schema validation for structured AI output
+- **Next.js 15.3.0** – App Router with Turbopack for fast development and edge-ready deployments
+- **React 19.1.0** – Server components and streaming-compatible component tree
+- **TypeScript 5.8.3** – Strict mode throughout with full type coverage
+- **Google AI SDK (`@ai-sdk/google`)** – Gemini model integration
+- **Vercel AI SDK (`ai` ^6.0)** – `streamText`, `streamObject`, and `useStreamableValue` patterns
+- **Tailwind CSS 4.2.1** – Latest v4 architecture with no config file
+- **Bun 1.3.8** – Package manager and runtime for fast installs and dev server
+- **Zod** – Schema validation for structured AI output parsing
 
 ## Technical Implementation
 
 ### AI Streaming Architecture
 
-LaunchKit uses the Vercel AI SDK's `streamText` and `streamObject` to pipe Gemini model responses directly to the client as they generate. The frontend uses `useStreamableValue` and custom typewriter animations to display output progressively, giving users immediate feedback without waiting for full completion.
+LaunchKit uses the Vercel AI SDK's `streamText` for open-ended prose generation and `streamObject` for structured output sections. Each output type (landing page, Twitter, LinkedIn, Product Hunt, pitch) runs as an independent streamed request so sections appear progressively as they complete. The frontend renders each stream via `useStreamableValue` with a custom typewriter animation that displays characters as they arrive, giving users immediate signal that generation is working.
 
 ### Prompt Engineering
 
-The generation is split into separate prompts for each output section (landing page, Twitter, LinkedIn, Product Hunt, pitch), each with distinct tone and format instructions. A large landing page template in `lib/landing-template.ts` (26KB) guides the model toward production-quality marketing copy with specific structural requirements.
+The generation pipeline uses five separate, purpose-built prompts — one per output type. Each prompt specifies exact tone, length constraints, structural requirements, and persona for the target platform. A large landing page template (`lib/landing-template.ts`, 26KB) serves as the structural blueprint for the landing page generator, anchoring the model to proven high-converting copy patterns. Prompts are tested against edge cases: tools with no README, highly technical projects, and consumer-facing apps.
 
 ### GitHub README Parsing
 
-When a GitHub URL is provided, LaunchKit fetches the repository's raw README content via the GitHub raw content API, strips Markdown formatting, and feeds the cleaned text as project context to the generation prompts. This enables high-quality output for existing projects without manual description.
+When a GitHub URL is provided, LaunchKit fetches the repository's raw README via the GitHub raw content CDN (`raw.githubusercontent.com`), strips Markdown formatting (headings, bold, links, code blocks) to plain text, and injects the cleaned content as project context into the generation prompts. This allows accurate copy for existing projects without requiring any manual description — the README does the work.
 
 ### Design System
 
-LaunchKit uses an editorial, high-contrast dark design aesthetic:
-- Background: `#0a0a0a` (near-black)
-- Accents: warm off-white `#e8e0d0` and muted ochre tones
-- Typography: Playfair Display (serif headlines), DM Mono (body and code)
-- UI: flat outlined buttons, dark inputs, sharp-cornered cards — no neon or gradients
-- Motion: fade-up reveals on load, streaming typewriter text output
+LaunchKit uses a deliberate editorial aesthetic designed to feel like a premium developer tool:
+- **Background**: `#0a0a0a` near-black with no gradients
+- **Accents**: warm off-white `#e8e0d0` and muted ochre
+- **Typography**: Playfair Display (serif headlines), DM Mono (body and code output)
+- **Components**: flat outlined buttons, dark inputs, sharp-cornered cards
+- **Motion**: fade-up reveals on load, streaming typewriter text, no bounce or spring animations
+
+### Architecture
+
+```
+app/
+  page.tsx          — Hero with product explanation and input form
+  generate/         — Generation interface and streaming display
+  api/              — Backend routes for AI calls and GitHub fetching
+lib/
+  ai.ts             — AI integration utilities and prompt builders
+  landing-template.ts  — 26KB structural template for landing page generation
+components/
+  ui/               — Design system components
+```
 
 ## What I Learned
 
 Building LaunchKit taught me:
 
-- How to build streaming AI applications with the Vercel AI SDK and Google Gemini
-- Next.js 15 App Router patterns, server actions, and edge function routing
-- Practical AI prompt engineering for consistent, structured marketing output
-- How to design developer tools with an editorial aesthetic and zero friction
-- Bun as a drop-in replacement for npm/node in a production Next.js stack
+- How to compose multiple independent AI streams that each update separate UI sections simultaneously
+- Vercel AI SDK's `streamObject` for getting structured JSON output streamed token-by-token
+- Next.js 15 App Router edge runtime patterns for low-latency AI endpoint routing
+- How prompt structure — not just prompt content — determines output consistency across runs
+- Bun as a drop-in runtime for Next.js: faster installs, compatible dev server, no config changes
 
 ## Impact
 
-LaunchKit removes the most time-consuming part of launching a side project — writing the copy — and makes it instant.
+LaunchKit removes the most time-consuming part of launching a side project — writing the copy — and makes it a 30-second task.
 
-- **Zero Friction** – No account, no payment, no configuration required
-- **Multi-Channel** – One input generates copy for four different platforms simultaneously
-- **GitHub Native** – Works directly from a repo URL, no manual description needed
-- **Developer First** – Editorial design that fits the aesthetic of premium dev tools
+- **Zero friction** – No account, no payment, no configuration required
+- **4 outputs simultaneously** – One input generates landing page, 3 social posts, and a pitch
+- **GitHub native** – Works directly from a repo URL without manual description
+- **Real-time streaming** – Results appear token by token, not in one blocking response
+- **Developer-first design** – Editorial aesthetic that fits premium dev tool standards
+- **Deployed** – Live at [launchkit.kroszborg.co](https://launchkit.kroszborg.co) with Vercel edge distribution

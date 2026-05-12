@@ -56,7 +56,7 @@ export const projects: Project[] = [
     description:
       'AI Launch Copy Generator - Paste a GitHub URL or describe your project and instantly get landing page copy, platform-tuned social posts for Twitter/X, LinkedIn, Product Hunt, and a perfect pitch',
     image: '/project/launchkit.webp',
-    link: 'https://github.com/Kroszborg/launchkit-4951',
+    link: 'https://launchkit.kroszborg.co',
     technologies: [
       { name: 'Next.js', icon: <NextJs key="nextjs" /> },
       { name: 'TypeScript', icon: <TypeScript key="typescript-lk" /> },
@@ -65,7 +65,7 @@ export const projects: Project[] = [
       { name: 'Bun', icon: <Bun key="bun" /> },
     ],
     github: 'https://github.com/Kroszborg/launchkit-4951',
-    live: 'https://github.com/Kroszborg/launchkit-4951',
+    live: 'https://launchkit.kroszborg.co',
     details: true,
     projectDetailsPageSlug: '/projects/launchkit',
     isWorking: true,

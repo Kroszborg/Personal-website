@@ -4,24 +4,24 @@ description: 'Feature-rich TUI git client in Go with GitHub/GitLab PR management
 image: '/project/sugi.webp'
 technologies: ['Go', 'Bubbletea', 'Cobra', 'Lipgloss', 'GitHub API', 'GitLab API', 'Groq AI']
 github: 'https://github.com/Kroszborg/sugi'
-live: 'https://github.com/Kroszborg/sugi'
+live: 'https://www.npmjs.com/package/@kroszborg/sugi'
 timeline: 'Ongoing'
 role: 'Solo Developer'
 team: 'Solo'
 status: 'completed'
 featured: true
 challenges:
-  - 'Building a responsive terminal UI that adapts to different terminal widths'
-  - 'Real-time git state synchronization across all panels'
-  - 'AI commit message generation with free Groq inference'
-  - 'Implementing interactive rebase and conflict resolution in a TUI'
-  - 'Cross-platform support via npm, Homebrew, and Go install'
+  - 'Building a responsive terminal UI that adapts correctly to different terminal widths and resize events'
+  - 'Real-time git state synchronization across all panels without blocking the UI'
+  - 'AI commit message generation using free Groq inference with clean diff context injection'
+  - 'Implementing interactive rebase with pick/squash/reorder/drop in a keyboard-driven TUI'
+  - 'Cross-platform binary distribution via npm, Homebrew, and go install simultaneously'
 learnings:
-  - 'Go programming language and idiomatic patterns'
-  - 'TUI development with the Charm Bracelet ecosystem (Bubbletea, Bubbles, Lipgloss)'
-  - 'CLI architecture and command routing with Cobra'
-  - 'GitHub and GitLab REST API integration'
-  - 'Building and publishing multi-platform CLI packages'
+  - 'Idiomatic Go programming — concurrency with goroutines, error wrapping, and interface design'
+  - 'TUI development with the Charm Bracelet ecosystem: Bubbletea, Bubbles, and Lipgloss'
+  - 'CLI architecture and hierarchical command routing with Cobra'
+  - 'GitHub and GitLab REST API integration for PR/MR, CI badges, and review status'
+  - 'Cross-platform binary packaging and publishing to npm, Homebrew tap, and Go module proxy'
 isPublished: true
 ---
 
@@ -29,103 +29,141 @@ isPublished: true
 
 ## Overview
 
-Sugi (杉 — *cedar tree, grows fast, stands tall, shaped with precision*) is a terminal UI git client written in Go that brings GitHub and GitLab pull request management, AI-powered commit messages, interactive rebase, bisect tools, worktree management, and multi-account support directly into your terminal.
+Sugi (杉 — *cedar tree, grows fast, stands tall, shaped with precision*) is a terminal UI git client written in Go using the Charm Bracelet ecosystem. It brings a full git workflow — staging, branching, commits, diffs, stash, interactive rebase, PR/MR management, AI commit messages, and multi-account switching — into a single keyboard-driven terminal interface.
 
-Built entirely in Go using the Charm Bracelet TUI ecosystem, Sugi is designed to replace or complement traditional CLI git workflows with a rich, keyboard-driven interface that stays entirely in the terminal.
+Built as a published open-source tool, Sugi is installable via npm, Homebrew, or `go install` and runs on Linux, macOS (Intel and ARM), and Windows.
 
-Installable via npm, Homebrew, or `go install` — published and available for use.
+**Install**: `npm install -g @kroszborg/sugi` · **GitHub**: [Kroszborg/sugi](https://github.com/Kroszborg/sugi)
+
+## Problem Statement
+
+Most developers use git through a mix of raw CLI commands, IDE integrations, and occasional GUI tools — none of which do everything well in the terminal. `git log`, `git add -p`, and `git rebase -i` each require separate invocations and muscle memory for dozens of flags. GitHub PR management requires leaving the terminal entirely. There was no single terminal-native tool that covered the full git workflow — including AI-assisted commits and GitHub/GitLab integration — in one place.
 
 ## Key Features
 
 ### Core Git Panels
 
-- **Files** – Stage and unstage individual files or hunks interactively
-- **Branches** – Checkout, merge, and rebase branches from the UI
-- **Commits** – Full log with ASCII graph, cherry-pick, revert, and bisect
-- **Diff** – Unified diff view with hunk-level navigation
-- **Stash** – List, apply, pop, and drop stashes with diff preview
+- **Files** – Stage and unstage individual files or hunks interactively; full diff preview inline
+- **Branches** – Checkout, create, merge, and rebase branches from the keyboard
+- **Commits** – Full log with ASCII graph, cherry-pick, revert, bisect start/good/bad, and reflog
+- **Diff** – Unified diff view with hunk-level navigation and syntax highlighting
+- **Stash** – List, apply, pop, and drop stashes with inline diff preview
 
 ### PR/MR Integration
 
-- GitHub and GitLab pull request and merge request management built in
-- CI badge display and review status per PR/MR
-- Create, view, and manage PRs without leaving the terminal
+- GitHub Pull Requests and GitLab Merge Requests managed directly in the TUI
+- CI badge display (pass/fail/pending) and review status per PR/MR
+- Create, view, approve, and manage PRs without leaving the terminal
+- Authentication via named token profiles (supports multiple accounts per host)
 
 ### AI-Powered Commit Messages
 
-- Generates commit messages using free Groq AI inference (`llama-3.1-8b-instant`)
-- Diff-aware summaries: feeds the staged diff to the model for accurate messages
-- Configurable model via `~/.config/sugi/config.json`
+- Generates conventional commit messages using **Groq AI** inference (free, no key required by default)
+- Default model: `llama-3.1-8b-instant` — fast and accurate for diff summarization
+- Staged diff is injected as context; output follows conventional commit format
+- Fully configurable: swap model, set API key, or disable in `~/.config/sugi/config.json`
 
 ### Multi-Account Management
 
-- Named token support for personal and work GitHub/GitLab accounts
-- Easy context switching between accounts within the same session
-- Secure token storage with per-host configuration
+Named token support for multiple GitHub and GitLab identities:
+
+```json
+// ~/.config/sugi/config.json
+{
+  "accounts": {
+    "personal": { "host": "github.com", "token": "ghp_..." },
+    "work":     { "host": "github.com", "token": "ghp_..." }
+  },
+  "ai": {
+    "provider": "groq",
+    "model": "llama-3.1-8b-instant"
+  }
+}
+```
+
+Switch accounts within a session — no re-authentication or shell variable changes needed.
 
 ### Advanced Git Features
 
-- **Interactive Rebase** – Full rebase workflow (pick, squash, reorder, drop) in the TUI
-- **Git Bisect** – Step through bisect sessions interactively
-- **File Blame** – Line-by-line blame view with commit details
-- **Reflog** – Browse and restore from reflog entries
-- **Worktree Management** – Create, switch, and remove worktrees from the UI
-- **Remote Management** – Add, remove, and fetch remotes
+- **Interactive Rebase** – Full rebase workflow: pick, squash, fixup, reorder, drop — all in the TUI
+- **Git Bisect** – Step through bisect sessions with `good`/`bad` marking and automatic narrowing
+- **File Blame** – Line-by-line blame with commit metadata and author info
+- **Reflog** – Browse reflog entries and restore HEAD to any previous state
+- **Worktree Management** – Create, list, switch, and remove git worktrees from the UI
+- **Remote Management** – Add, remove, rename, and fetch remotes
 
 ### Command Palette
 
-- Fuzzy search across all available actions via `ctrl+p`
-- Full keyboard-first navigation throughout the interface
-- Responsive layout that adapts for narrow terminals under 100 columns
+- `ctrl+p` opens a fuzzy-search command palette across all available actions
+- Full keyboard-first navigation — no mouse required anywhere in the interface
+- Responsive layout: adapts for narrow terminals under 100 columns with a simplified view
 
 ## Tech Stack
 
-- **Go 1.24** – Core language; fast binaries, easy cross-compilation
-- **Bubbletea** – Elm-inspired TUI framework for reactive terminal UIs
-- **Bubbles** – Pre-built TUI components (viewport, list, spinner, textinput)
-- **Lipgloss** – Declarative terminal styling and layout
-- **Cobra** – CLI command routing and flag parsing
-- **Groq AI** – Free LLM inference for commit message generation
-- **GitHub REST API** – PR and CI integration
-- **GitLab REST API** – MR integration
+- **Go 1.24.2** – Core language; fast compilation, easy cross-compilation, single binary output
+- **Bubbletea** – Elm-inspired Model-Update-View TUI framework; reactive, composable panels
+- **Bubbles** – Pre-built Bubbletea components: viewport, list, textinput, spinner, progress
+- **Lipgloss** – Declarative terminal layout and styling with ANSI color support
+- **Cobra** – CLI command routing, flag parsing, and help text generation
+- **Groq AI** – Free LLM API for commit message generation (`llama-3.1-8b-instant`)
+- **GitHub REST API** – PR listing, CI status, review state, and merge operations
+- **GitLab REST API** – MR integration with the same interface as GitHub
 
 ## Technical Implementation
 
 ### TUI Architecture
 
-Sugi uses Bubbletea's Elm-inspired Model-Update-View architecture. Each panel (Files, Branches, Commits, Diff, Stash) is an independent Bubbletea model with its own update loop, composed into a parent application model. Lipgloss handles all layout and styling, with responsive breakpoints for narrow terminals.
+Sugi uses Bubbletea's Elm-inspired Model-Update-View pattern. Each panel (Files, Branches, Commits, Diff, Stash, PRs) is an independent `tea.Model` with its own `Init()`, `Update()`, and `View()` methods. A root application model owns the active panel, global keybindings, and inter-panel message passing. The `Update()` function is the single point where all `tea.Msg` values are dispatched — git state changes, API responses, AI output, and resize events all flow through it.
+
+Lipgloss handles all layout: panels use `lipgloss.Place` for alignment and `lipgloss.JoinHorizontal`/`JoinVertical` for composing sections. Responsive breakpoints are checked on every `tea.WindowSizeMsg` and stored in the root model to switch between full and compact layouts.
 
 ### Git State Management
 
-Git operations are performed via Go's `os/exec` wrapping standard git commands, keeping the implementation dependency-free and compatible with any git version. State synchronization is triggered on key actions and refreshed on window focus to keep panels accurate.
+All git operations run via `os/exec` wrapping standard git commands — no libgit2 binding, ensuring compatibility with any git version and configuration. State is fetched asynchronously using `tea.Cmd` functions that return `tea.Msg` values on completion; the UI never blocks waiting for a git operation. A `RefreshMsg` is dispatched after every write operation (stage, commit, checkout, rebase step) to re-fetch panel state.
 
 ### AI Integration
 
-Staged diffs are piped to the Groq API (free tier, no key required by default) using the `llama-3.1-8b-instant` model. The prompt is engineered to produce conventional commit format messages. The model and API key are fully configurable.
+When the user requests an AI commit message, the staged diff is collected via `git diff --cached`, sanitized to remove binary content and diff headers beyond a token limit, and sent to the Groq API using the configured model. The response is streamed back and injected into the commit message textinput field, where the user can edit before committing. No API key is required by default — Groq's free tier handles the volume.
 
-### Distribution
+### Distribution Pipeline
 
-Sugi is built and released via GitHub Actions across Linux, macOS (Intel + ARM), and Windows. Distributed as:
+Sugi uses GitHub Actions to build cross-platform binaries on every tagged release:
 
-- **npm**: `npm install -g @kroszborg/sugi`
-- **Homebrew**: `brew install Kroszborg/tap/sugi`
-- **Go**: `go install github.com/Kroszborg/sugi/cmd/sugi@latest`
+| Platform | Architecture | Distribution |
+|----------|-------------|--------------|
+| Linux | amd64, arm64 | GitHub Release, go install |
+| macOS | Intel (amd64) | GitHub Release, Homebrew, go install |
+| macOS | Apple Silicon (arm64) | GitHub Release, Homebrew, go install |
+| Windows | amd64 | GitHub Release, npm, go install |
+
+The npm package (`@kroszborg/sugi`) downloads the correct binary for the current platform at install time via a postinstall script. The Homebrew tap (`Kroszborg/tap/sugi`) provides formula-based installation with auto-updates.
 
 ## What I Learned
 
 Building Sugi taught me:
 
-- Idiomatic Go programming, concurrency patterns, and error handling
-- Terminal UI design constraints and Bubbletea's reactive architecture
-- How to build and distribute cross-platform CLI tools at scale
-- GitHub and GitLab API surface for PR/MR, CI, and review workflows
-- Prompt engineering for practical AI-assisted developer tooling
+- Idiomatic Go: interface composition, error wrapping with `fmt.Errorf("%w", err)`, goroutine lifecycle management, and context cancellation
+- Bubbletea's reactive model and how to compose independent panel models without shared mutable state
+- How terminal UI layout differs fundamentally from web layout — everything is character-grid based
+- GitHub and GitLab API pagination, rate limiting, and webhook/event patterns for CI status polling
+- Cross-platform binary packaging: how npm, Homebrew, and the Go module proxy each have different requirements for the same artifact
+- Prompt engineering for diff-aware commit message generation — specifically how to truncate context intelligently to stay within model token limits
 
 ## Impact
 
-Sugi brings a full Git UI workflow — staging, branching, PR management, and AI commit messages — into the terminal without requiring a GUI application or web browser. Distributed across npm, Homebrew, and Go, it's accessible to developers across all platforms.
+Sugi brings a full git workflow into the terminal without requiring a GUI application or browser tab.
 
-- **Zero Context Switch** – Stay in the terminal through the entire git workflow
-- **Free AI** – Commit messages without an OpenAI subscription
-- **Multi-Platform** – npm, Homebrew, and go install support out of the box
-- **Polyglot Showcase** – Demonstrates Go fluency alongside the JavaScript/TypeScript stack
+- **Published** – Available via `npm install -g @kroszborg/sugi`, `brew install Kroszborg/tap/sugi`, and `go install`
+- **Cross-platform** – Linux, macOS (Intel + ARM), and Windows binaries on every release
+- **Free AI** – Groq-powered commit messages with no API key required
+- **Zero dependencies** – Single static binary; no runtime, no interpreter, no package manager after install
+- **Full workflow** – Staging, committing, branching, rebasing, PR management, and AI all in one place
+- **Polyglot signal** – Demonstrates Go fluency alongside the JavaScript/TypeScript primary stack
+
+## Architecture Highlights
+
+- **Message-passing concurrency**: all async operations (git commands, API calls, AI requests) use Bubbletea's `tea.Cmd` → `tea.Msg` pipeline — the UI thread never blocks
+- **Single binary distribution**: Go's static compilation produces a self-contained executable with no runtime dependencies
+- **Config-driven AI**: the AI provider, model, and API key are fully configurable without code changes — swap Groq for any OpenAI-compatible endpoint
+- **Panel isolation**: each panel has its own model and state; switching panels is a root-model state change, not a component unmount/remount
+- **Adaptive layout**: every `WindowSizeMsg` recalculates all panel dimensions — Sugi handles terminal resize correctly at all times
