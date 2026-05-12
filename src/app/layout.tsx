@@ -50,7 +50,9 @@ export default function RootLayout({
   return (
     <ViewTransitions>
       <html lang="en" suppressHydrationWarning>
-        <ThemeInitializer />
+        <head>
+          <ThemeInitializer />
+        </head>
         <body className="font-hanken-grotesk antialiased">
           <ThemeProvider
             attribute="class"

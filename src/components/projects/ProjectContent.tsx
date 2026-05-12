@@ -187,14 +187,14 @@ export function ProjectContent({
               <h3 className="mb-3 text-lg font-semibold text-yellow-800 dark:text-yellow-200">
                 Key Challenges
               </h3>
-              <ul className="space-y-2">
+              <ul className="list-none space-y-2">
                 {challenges.map((challenge, index) => (
                   <li
                     key={index}
                     className="flex items-start gap-2 text-sm text-yellow-700 dark:text-yellow-300"
                   >
-                    <span className="mt-1 block size-1.5 rounded-full bg-yellow-500 dark:bg-yellow-400" />
-                    {challenge}
+                    <span className="mt-1.5 block size-1.5 shrink-0 rounded-full bg-yellow-500 dark:bg-yellow-400" />
+                    <span>{challenge}</span>
                   </li>
                 ))}
               </ul>
@@ -206,14 +206,14 @@ export function ProjectContent({
               <h3 className="mb-3 text-lg font-semibold text-green-800 dark:text-green-200">
                 Key Learnings
               </h3>
-              <ul className="space-y-2">
+              <ul className="list-none space-y-2">
                 {learnings.map((learning, index) => (
                   <li
                     key={index}
                     className="flex items-start gap-2 text-sm text-green-700 dark:text-green-300"
                   >
-                    <span className="mt-1 block size-1.5 rounded-full bg-green-500 dark:bg-green-400" />
-                    {learning}
+                    <span className="mt-1.5 block size-1.5 shrink-0 rounded-full bg-green-500 dark:bg-green-400" />
+                    <span>{learning}</span>
                   </li>
                 ))}
               </ul>

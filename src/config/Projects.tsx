@@ -20,7 +20,7 @@ export const projects: Project[] = [
     title: 'GearOne',
     description:
       'Smart Automobile Service Platform - Production-ready mobile app ecosystem with React Native, Node.js backend, Next.js admin dashboard, and Razorpay payment integration deployed to Google Play',
-    image: '/project/gearon.svg',
+    image: '/project/gearon.webp',
     link: 'https://play.google.com/store/apps/details?id=com.gearon.gearonjaipur&hl=en_IN',
     technologies: [
       { name: 'React Native', icon: <ReactIcon key="react-native" /> },
@@ -39,14 +39,14 @@ export const projects: Project[] = [
     title: 'Sugi',
     description:
       'Terminal UI Git Client - Feature-rich TUI git client in Go with GitHub/GitLab PR management, AI-powered commit messages, interactive rebase, bisect, worktrees, and multi-account support',
-    image: '/project/sugi.svg',
-    link: 'https://github.com/Kroszborg/sugi',
+    image: '/project/sugi.webp',
+    link: 'https://www.npmjs.com/package/@kroszborg/sugi',
     technologies: [
       { name: 'Go', icon: <Go key="go" /> },
       { name: 'GitHub', icon: <Github key="github" /> },
     ],
     github: 'https://github.com/Kroszborg/sugi',
-    live: 'https://github.com/Kroszborg/sugi',
+    live: 'https://www.npmjs.com/package/@kroszborg/sugi',
     details: true,
     projectDetailsPageSlug: '/projects/sugi',
     isWorking: true,
@@ -55,7 +55,7 @@ export const projects: Project[] = [
     title: 'LaunchKit',
     description:
       'AI Launch Copy Generator - Paste a GitHub URL or describe your project and instantly get landing page copy, platform-tuned social posts for Twitter/X, LinkedIn, Product Hunt, and a perfect pitch',
-    image: '/project/launchkit.svg',
+    image: '/project/launchkit.webp',
     link: 'https://github.com/Kroszborg/launchkit-4951',
     technologies: [
       { name: 'Next.js', icon: <NextJs key="nextjs" /> },
@@ -68,23 +68,6 @@ export const projects: Project[] = [
     live: 'https://github.com/Kroszborg/launchkit-4951',
     details: true,
     projectDetailsPageSlug: '/projects/launchkit',
-    isWorking: true,
-  },
-  {
-    title: 'ZAxis',
-    description:
-      'Minimal 3D Components Library - Production-ready 3D UI components for seamless integration into web apps with real-time customization',
-    image: '/project/zaxis.png',
-    link: 'https://zaxis.kroszborg.co',
-    technologies: [
-      { name: 'React', icon: <ReactIcon key="react" /> },
-      { name: 'Three.js', icon: <ThreeJs key="threejs" /> },
-      { name: 'TypeScript', icon: <TypeScript key="typescript" /> },
-    ],
-    github: 'https://github.com/Kroszborg/zaxis',
-    live: 'https://zaxis.kroszborg.co',
-    details: true,
-    projectDetailsPageSlug: '/projects/zaxis',
     isWorking: true,
   },
   {
@@ -103,6 +86,23 @@ export const projects: Project[] = [
     live: 'https://localgov.kroszborg.co',
     details: true,
     projectDetailsPageSlug: '/projects/localgov',
+    isWorking: true,
+  },
+  {
+    title: 'ZAxis',
+    description:
+      'Minimal 3D Components Library - Production-ready 3D UI components for seamless integration into web apps with real-time customization',
+    image: '/project/zaxis.webp',
+    link: 'https://zaxis.kroszborg.co',
+    technologies: [
+      { name: 'React', icon: <ReactIcon key="react" /> },
+      { name: 'Three.js', icon: <ThreeJs key="threejs" /> },
+      { name: 'TypeScript', icon: <TypeScript key="typescript" /> },
+    ],
+    github: 'https://github.com/Kroszborg/zaxis',
+    live: 'https://zaxis.kroszborg.co',
+    details: true,
+    projectDetailsPageSlug: '/projects/zaxis',
     isWorking: true,
   },
   {
