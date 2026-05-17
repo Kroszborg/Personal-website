@@ -17,13 +17,10 @@ import {
   Github,
   Home,
   Linkedin,
-  Moon,
   Share2,
-  Sun,
   Twitter,
   Wrench,
 } from 'lucide-react';
-import { useTheme } from 'next-themes';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
@@ -39,7 +36,6 @@ interface CommandItemType {
 export function CommandPalette() {
   const [open, setOpen] = useState(false);
   const router = useRouter();
-  const { theme, setTheme } = useTheme();
 
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -85,11 +81,6 @@ export function CommandPalette() {
         document.addEventListener('visibilitychange', handleVisibilityChange);
       }
     }, 150);
-  };
-
-  const handleToggleTheme = () => {
-    setTheme(theme === 'dark' ? 'light' : 'dark');
-    setOpen(false);
   };
 
   const handleShare = () => {
@@ -179,16 +170,6 @@ export function CommandPalette() {
       icon: <FileText />,
       action: () => handleNavigate('/secret'),
       group: 'navigation',
-    },
-
-    // Features
-    {
-      id: 'theme',
-      label: 'Toggle Theme',
-      description: 'Switch between light and dark mode',
-      icon: theme === 'dark' ? <Sun /> : <Moon />,
-      action: handleToggleTheme,
-      group: 'features',
     },
 
     // Actions

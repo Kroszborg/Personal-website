@@ -1,7 +1,6 @@
 'use client';
 
 import { githubConfig } from '@/config/Github';
-import { useTheme } from 'next-themes';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
@@ -42,7 +41,6 @@ export default function Github() {
   const [totalContributions, setTotalContributions] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
-  const { theme } = useTheme();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const isDragging = useRef(false);
   const dragStartX = useRef(0);
@@ -178,7 +176,7 @@ export default function Github() {
             blockSize={11}
             blockMargin={3}
             fontSize={11}
-            colorScheme={theme === 'dark' ? 'dark' : 'light'}
+            colorScheme="dark"
             maxLevel={githubConfig.maxLevel}
             hideTotalCount={true}
             hideColorLegend={true}

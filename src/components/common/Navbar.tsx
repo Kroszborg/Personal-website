@@ -6,7 +6,6 @@ import Image from 'next/image';
 import React from 'react';
 
 import { SearchTrigger } from './SearchTrigger';
-import { ThemeToggleButton } from './ThemeSwitch';
 
 export default function Navbar() {
   return (
@@ -43,7 +42,6 @@ export default function Navbar() {
           <div className="hidden md:flex">
             <SearchTrigger />
           </div>
-          <ThemeToggleButton variant="circle" start="top-right" blur />
         </div>
       </div>
     </nav>

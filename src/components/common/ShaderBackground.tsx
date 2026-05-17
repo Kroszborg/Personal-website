@@ -1,7 +1,6 @@
 'use client';
 
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { useTheme } from 'next-themes';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { ShaderMaterial } from 'three';
 
@@ -203,8 +202,6 @@ function AnimatedShader({ isDark }: { isDark: boolean }) {
 
 export function ShaderBackground() {
   const [isMounted, setIsMounted] = useState(false);
-  const { resolvedTheme } = useTheme();
-  const isDark = resolvedTheme === 'dark';
 
   useEffect(() => {
     setIsMounted(true);
@@ -220,7 +217,7 @@ export function ShaderBackground() {
         dpr={1}
         frameloop="demand"
       >
-        <AnimatedShader isDark={isDark} />
+        <AnimatedShader isDark={true} />
       </Canvas>
     </div>
   );
