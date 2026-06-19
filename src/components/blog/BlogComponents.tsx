@@ -187,4 +187,76 @@ export const BlogComponents = {
       {children}
     </blockquote>
   ),
+  // GitHub-flavored markdown tables
+  table: ({
+    children,
+    ...props
+  }: {
+    children: React.ReactNode;
+    [key: string]: unknown;
+  }) => (
+    <div className="mb-6 w-full overflow-x-auto">
+      <table
+        className="w-full border-collapse text-sm [&_td]:px-4 [&_td]:py-2 [&_th]:px-4 [&_th]:py-2"
+        {...props}
+      >
+        {children}
+      </table>
+    </div>
+  ),
+  thead: ({
+    children,
+    ...props
+  }: {
+    children: React.ReactNode;
+    [key: string]: unknown;
+  }) => (
+    <thead className="bg-muted/50 border-b" {...props}>
+      {children}
+    </thead>
+  ),
+  tbody: ({
+    children,
+    ...props
+  }: {
+    children: React.ReactNode;
+    [key: string]: unknown;
+  }) => (
+    <tbody className="[&_tr:not(:last-child)]:border-b" {...props}>
+      {children}
+    </tbody>
+  ),
+  tr: ({
+    children,
+    ...props
+  }: {
+    children: React.ReactNode;
+    [key: string]: unknown;
+  }) => (
+    <tr className="border-border" {...props}>
+      {children}
+    </tr>
+  ),
+  th: ({
+    children,
+    ...props
+  }: {
+    children: React.ReactNode;
+    [key: string]: unknown;
+  }) => (
+    <th className="text-left font-semibold" {...props}>
+      {children}
+    </th>
+  ),
+  td: ({
+    children,
+    ...props
+  }: {
+    children: React.ReactNode;
+    [key: string]: unknown;
+  }) => (
+    <td className="text-muted-foreground align-top" {...props}>
+      {children}
+    </td>
+  ),
 };

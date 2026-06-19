@@ -1,0 +1,227 @@
+---
+title: 'Beam - Encrypted Peer-to-Peer File Transfer'
+description: 'End-to-end encrypted, peer-to-peer file transfer web app. Files are encrypted in the sender browser, streamed directly to the receiver over a WebRTC DataChannel, and decrypted on arrival. The server is a blind relay: no uploads, no accounts, no keys.'
+image: '/project/beam.webp'
+technologies: ['React', 'TypeScript', 'Vite', 'Tailwind CSS', 'Framer Motion', 'WebRTC', 'Web Crypto API', 'Fastify', 'WebSocket', 'Redis', 'Node.js', 'Zod']
+github: ''
+live: 'https://beam.kroszborg.co'
+timeline: '1 month'
+role: 'Solo Full Stack Developer'
+team: 'Solo'
+status: 'completed'
+featured: true
+challenges:
+  - 'Designing a security model where the server can never read file contents or encryption keys'
+  - 'Streaming arbitrarily large files over a WebRTC DataChannel without exhausting browser memory'
+  - 'Guaranteeing AES-GCM IV uniqueness across millions of chunks within a single session'
+  - 'Coordinating two peers through ephemeral rooms while keeping the server stateless about files'
+  - 'Verifying integrity per-chunk and across the whole transfer to detect corruption and tampering'
+  - 'Handling NAT traversal, horizontal scaling, and connection resumption when peers drop mid-transfer'
+learnings:
+  - 'WebRTC signaling, ICE/STUN/TURN negotiation, and SCTP DataChannel backpressure'
+  - 'Applied cryptography with the Web Crypto API: AES-256-GCM, deterministic IVs, SHA-256 Merkle trees'
+  - 'Designing a zero-knowledge architecture where trust is enforced by math, not by the server'
+  - 'Building a horizontally-scalable signaling hub with Redis pub/sub and ephemeral room state'
+  - 'Streaming to disk via the File System Access API with a graceful in-memory fallback'
+isPublished: true
+---
+
+# Beam - Encrypted Peer-to-Peer File Transfer
+
+## Overview
+
+Beam sends files directly between devices without ever uploading them to the cloud. Files are encrypted in the sender's browser with AES-256-GCM, streamed straight to the receiver over a WebRTC DataChannel, and decrypted in the receiver's browser. The backend only brokers the initial handshake. It never sees file contents, file names, or encryption keys.
+
+There are no accounts and no uploads. You pick a file, share a link, and the bytes flow peer-to-peer.
+
+**Live at [beam.kroszborg.co](https://beam.kroszborg.co)**
+
+## Problem Statement
+
+Sending a file to someone usually means handing it to a third party first. Email attachments, cloud drives, chat apps, all of them upload, store, and can read your data. For anything sensitive, that's a privacy problem: the file sits on a server you don't control, indexed and retained.
+
+Beam removes the middleman. The file goes directly from one browser to the other, encrypted end-to-end, so the only two parties that can ever read it are the sender and the intended receiver.
+
+## Security Model
+
+The entire design follows a single rule: **the server is a blind relay**.
+
+- **Files are encrypted client-side** with AES-256-GCM before they ever leave the sender. The backend handles only ciphertext it cannot read.
+- **The encryption key never reaches the backend.** It lives in the share link's URL *fragment* (`https://beam.kroszborg.co/r/abc123#secretKey`). Browsers never transmit the fragment to the server, so the server only ever sees the room id `abc123` — never the `#secretKey` after it.
+- **Integrity is verified** per-chunk via the GCM auth tag and SHA-256, and across the whole transfer with a SHA-256 Merkle tree, detecting corruption, missing chunks, and tampering.
+- **Room state is ephemeral** — presence and SDP/ICE forwarding only, held in Redis with a TTL. Nothing about the file is persisted.
+
+```
+Sender browser ──encrypt──▶ ░ WebRTC P2P DataChannel ░ ──decrypt──▶ Receiver browser
+                                     ▲
+                          signaling only (SDP/ICE)
+                                     │
+                          Beam signaling server  ── Redis (ephemeral rooms)
+                        (no files, no keys, ever)
+```
+
+## System Architecture
+
+Beam is a pnpm/TypeScript monorepo split into three packages, with a shared wire-contract package so both ends agree on the exact protocol:
+
+```
+beam/
+├── packages/
+│   ├── shared/   @beam/shared  — wire contracts (signaling + datachannel) + crypto constants
+│   ├── server/   @beam/server  — Fastify + WebSocket signaling, Redis rooms (no file storage)
+│   └── client/   @beam/client  — React + Vite + Tailwind + shadcn/ui + Framer Motion
+```
+
+The client is layered so each part is ignorant of the others' concerns:
+
+| Layer             | Path                       | Responsibility                                      |
+| ----------------- | -------------------------- | --------------------------------------------------- |
+| Encryption        | `client/src/lib/crypto`    | AES-256-GCM keys, deterministic IVs, SHA-256        |
+| Transport         | `client/src/lib/webrtc`    | RTCPeerConnection, DataChannel, backpressure        |
+| Signaling client  | `client/src/lib/signaling` | Typed WebSocket client with reconnect               |
+| Transfer protocol | `client/src/lib/transfer`  | Chunking, Merkle tree, framing, resume              |
+
+Because the wire contracts live in `@beam/shared` and are validated with Zod, the sender, receiver, and server can never silently drift out of sync — a protocol change is a single source edit that both ends compile against.
+
+## How a Transfer Works — End to End
+
+1. **Sender opens Beam** and selects file(s). The browser generates a fresh AES-256-GCM key and an 8-byte base nonce.
+2. **A room is minted.** The sender's WebSocket sends `create-room`; the server returns a short room id and assigns the `sender` role.
+3. **A share link is built** as `…/r/{roomId}#{exportedKey}`. The key sits in the URL fragment, so it stays in the browser and is never sent to the server.
+4. **Receiver opens the link.** Their browser reads the key from the fragment, then sends `join-room {roomId}` over its own WebSocket. The server adds them as the second member and emits `peer-joined` to the sender.
+5. **WebRTC handshake.** The two peers exchange SDP offers/answers and ICE candidates as opaque `signal` payloads relayed by the server. Once ICE completes, an encrypted SCTP DataChannel is established directly between them.
+6. **Streaming.** The sender slices each file into 4 MB chunks, encrypts each chunk, fragments it into 16 KB wire frames, and pumps them through the DataChannel under backpressure. The receiver reassembles, decrypts, verifies, and streams to disk.
+7. **Verification.** Each chunk is authenticated on decrypt; the whole file is checked against a SHA-256 Merkle root. Done — the room expires and nothing remains server-side.
+
+## Room Management & Signaling
+
+The server's only job is to introduce two browsers to each other and then get out of the way. That introduction is built around **ephemeral rooms** and a **stateless-about-files signaling hub**.
+
+### Ephemeral Rooms in Redis
+
+A "room" is just the rendezvous record for two peers performing a handshake. It holds membership and a creation timestamp — and deliberately **no file bytes and no key material**.
+
+- Rooms are stored under `beam:room:{roomId}` with a **Redis TTL**, so abandoned rooms cost nothing and clean themselves up automatically.
+- **Membership is capped at two peers** — one sender, one receiver. A third join is rejected with `room-full`.
+- **Room codes** are generated with a `nanoid` alphabet that excludes visually ambiguous characters (no `0`/`o`/`1`/`l`), so a code is safe to read aloud or type by hand.
+- Every signaling message on a live room **refreshes the TTL** (`touch`), so an in-progress transfer never expires out from under the peers, while idle rooms still die on schedule.
+
+### Concurrency-Safe Joins
+
+Even though a room only ever has two members, the join path guards the read-modify-write against a "two receivers race for the last slot" condition using a Redis **`WATCH`/`MULTI` optimistic transaction**, retrying a few times before giving up:
+
+```ts
+for (let attempt = 0; attempt < 5; attempt++) {
+  await redis.watch(key);
+  const record = JSON.parse(await redis.get(key));
+
+  if (record.members.includes(peerId)) return { ok: true, room: record }; // idempotent re-join
+  if (record.members.length >= MAX_MEMBERS) return { ok: false, reason: 'room-full' };
+
+  record.members.push(peerId);
+  const result = await redis.multi()
+    .set(key, JSON.stringify(record), 'EX', ttlSeconds)
+    .exec();
+
+  if (result !== null) return { ok: true, room: record }; // null = WATCHed key changed → retry
+}
+```
+
+Re-joining with the same `peerId` (a reconnect) is **idempotent**, so a flaky network doesn't lock a peer out of its own room.
+
+### Presence & Lifecycle
+
+The hub tracks presence and broadcasts lifecycle events so the UI always reflects reality:
+
+- `room-created` / `room-joined` confirm a peer's role
+- `peer-joined` tells the sender the receiver has arrived and the handshake can begin
+- `peer-left` tells the surviving peer to drop into a wait/resume state when the other side disconnects
+- When the **last** member leaves, the room is deleted immediately rather than waiting for the TTL.
+
+### Horizontal Scaling with Redis Pub/Sub
+
+The two peers in a room may be connected to **different server instances** behind a load balancer. To relay between them, every message destined for a room is published to a Redis channel `beam:relay:{roomId}`. Each instance subscribes only to the rooms it has local members in, and fans incoming messages out to its local sockets — honouring an `exclude` peer id so a sender never receives its own message echoed back. Redis stays the single source of truth for room lifecycle, and the WebSocket layer scales out horizontally without sticky sessions.
+
+### Abuse Protection
+
+Each WebSocket connection has a **sliding-window rate limit** (300 messages / 10s) — generous enough for legitimate ICE-candidate trickle bursts, but it cuts off floods and closes the socket with a policy-violation code. Malformed JSON, unknown message types, and signaling for a room you're not in are all rejected with typed error codes rather than crashing the handler.
+
+## End-to-End Encryption in the Browser
+
+- **AES-256-GCM** via the Web Crypto API — files are encrypted before any byte leaves the sender.
+- The key is generated in-browser and shared only through the URL fragment, which the server can't see.
+- GCM's 128-bit auth tag means every chunk is authenticated on decrypt — tampering, corruption, or a wrong key make `crypto.subtle.decrypt` throw, which the receiver surfaces as a verification failure.
+
+### Deterministic IVs — No Nonce Reuse
+
+GCM is catastrophically broken if a `(key, IV)` pair is ever reused. Rather than gamble on random IVs across millions of chunks (a birthday-bound risk), Beam derives a unique 12-byte IV per chunk:
+
+```
+IV = baseNonce (8 random bytes, per session) || chunkIndex (4 bytes, big-endian)
+```
+
+The base nonce is unique per session and the chunk index is unique within it, so every IV is unique for the lifetime of the key. The base nonce ships in the manifest in the clear — it isn't secret; only the key is, and the key never leaves the browser.
+
+## Streaming Transport with Backpressure
+
+- Files are sliced into **4 MB application chunks** — the unit of encryption, hashing, and resume bookkeeping.
+- Each encrypted chunk is fragmented into **16 KB wire frames**, because SCTP (the WebRTC DataChannel transport) can't reliably ship multi-megabyte messages.
+- A **1 MB `bufferedAmountLow` threshold** drives backpressure — the sender pauses pumping frames when the outgoing buffer fills and resumes when it drains, keeping memory bounded regardless of file size.
+
+## Integrity via a Merkle Tree
+
+- Every chunk is hashed with SHA-256; the hashes form a SHA-256 **Merkle tree**.
+- The receiver verifies each chunk on arrival and the whole transfer against the root, catching corruption, reordering, and missing chunks before the file is ever handed to the user.
+
+## Streaming to Disk + Resume
+
+- On Chromium browsers the receiver streams incoming bytes **straight to disk via the File System Access API** — large files never have to fit in memory.
+- On Firefox/Safari it falls back to assembling the file in memory before download, with a documented memory caveat for very large files.
+- A **bitmap of received chunks** enables **resume**: if a peer drops mid-transfer, the receiver tells the sender which chunks it already has, and only the missing ones are re-sent instead of restarting from zero.
+
+## Tech Stack
+
+| Layer       | Technology                            |
+| ----------- | ------------------------------------- |
+| Frontend    | React 19 + Vite                       |
+| Styling     | Tailwind CSS 4 + shadcn/ui            |
+| Animation   | Framer Motion                         |
+| Crypto      | Web Crypto API (AES-256-GCM, SHA-256) |
+| Transport   | WebRTC DataChannel (SCTP)             |
+| Signaling   | Fastify 5 + WebSocket                 |
+| State store | Redis (ioredis) — rooms + pub/sub     |
+| Validation  | Zod                                   |
+| Language    | TypeScript 5 (monorepo)               |
+| Tooling     | pnpm workspaces, Vitest               |
+
+## NAT Traversal
+
+STUN is used by default via free public servers. For reliable transfers behind symmetric NAT or CGNAT, TURN is supported — setting `TURN_URL`, `TURN_USERNAME`, and `TURN_CREDENTIAL` makes the server hand those ICE servers to clients. TURN is optional and off by default.
+
+## Challenges & Trade-offs
+
+- **Zero-knowledge vs. usability** — keeping the key out of the server while still making a single shareable link work meant leaning on the URL fragment, a subtle but crucial browser behavior. Get it wrong and the whole security model collapses.
+- **Big files in a browser tab** — naive "read file → encrypt → send" would OOM the tab on large files. The fix was a streaming pipeline with 4 MB chunks, 16 KB frames, and DataChannel backpressure so memory stays flat.
+- **SCTP message limits** — WebRTC can't reliably send multi-megabyte messages, forcing the two-tier chunk/frame split and a custom binary framing header.
+- **IV uniqueness at scale** — random IVs carry a real reuse risk over millions of chunks, so the deterministic `baseNonce || chunkIndex` scheme was necessary to keep GCM safe.
+- **Stateful peers, stateless server** — coordinating reconnects, room-full races, and cross-instance relay without ever letting the server hold file state required the WATCH/MULTI joins and Redis pub/sub relay.
+
+## What I Learned
+
+Building Beam taught me:
+
+- **WebRTC end to end** — signaling, ICE/STUN/TURN negotiation, and the realities of SCTP DataChannel backpressure.
+- **Applied cryptography in the browser** — using the Web Crypto API correctly, including why deterministic IVs beat random ones at scale.
+- **Zero-knowledge design** — architecting a system where the server is trusted with nothing, and security is enforced by where the key lives rather than by access control.
+- **Scalable real-time infra** — ephemeral Redis rooms, optimistic-locked joins, and pub/sub relay that scales horizontally without sticky sessions.
+- **Monorepo discipline** — sharing a single Zod-validated source of truth for the wire protocol between client and server.
+
+## Impact
+
+Beam is a working demonstration that secure file sharing doesn't require a trusted cloud.
+
+- **Zero-knowledge by construction** — the server cannot read files or keys even if it wanted to.
+- **No uploads, no accounts** — bytes flow directly between browsers.
+- **Unbounded file sizes** — streaming + backpressure keep memory flat regardless of how large the file is.
+- **Verifiable integrity** — per-chunk authentication and a Merkle root prove the received file matches what was sent.
+- **Horizontally scalable** — the signaling layer runs as many instances as needed, with Redis as the single source of truth.

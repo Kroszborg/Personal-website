@@ -17,6 +17,23 @@ import { Project } from '@/types/project';
 
 export const projects: Project[] = [
   {
+    title: 'Beam',
+    description:
+      'End-to-end encrypted, peer-to-peer file transfer - Files are encrypted in the browser and streamed directly between devices over WebRTC. The server is a blind relay that only brokers the handshake. No uploads, no accounts.',
+    image: '/project/beam.webp',
+    link: 'https://beam.kroszborg.co',
+    technologies: [
+      { name: 'React', icon: <ReactIcon key="react-beam" /> },
+      { name: 'TypeScript', icon: <TypeScript key="typescript-beam" /> },
+      { name: 'Node.js', icon: <NodeJs key="nodejs-beam" /> },
+      { name: 'Tailwind CSS', icon: <TailwindCss key="tailwind-beam" /> },
+    ],
+    live: 'https://beam.kroszborg.co',
+    details: true,
+    projectDetailsPageSlug: '/projects/beam',
+    isWorking: true,
+  },
+  {
     title: 'GearOne',
     description:
       'Smart Automobile Service Platform - Production-ready mobile app ecosystem with React Native, Node.js backend, Next.js admin dashboard, and Razorpay payment integration deployed to Google Play',

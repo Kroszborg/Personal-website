@@ -17,11 +17,10 @@ export const navbarConfig = {
       label: 'Work',
       href: '/work-experience',
     },
-    // Temporarily hidden - uncomment to re-enable blog
-    // {
-    //   label: 'Blogs',
-    //   href: '/blog',
-    // },
+    {
+      label: 'Blogs',
+      href: '/blog',
+    },
     {
       label: 'Projects',
       href: '/projects',

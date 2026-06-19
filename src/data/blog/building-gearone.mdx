@@ -1,0 +1,102 @@
+---
+title: 'Building GearOne: Shipping a 3-System Mobile Platform Solo'
+description: 'How I built and deployed a production automobile-service platform (a React Native app, a Node.js backend, and a Next.js admin panel) sharing one Supabase database, in four months.'
+image: '/project/gearon.webp'
+tags: ['React Native', 'Node.js', 'Supabase', 'Mobile', 'Full Stack']
+date: '2026-05-20'
+isPublished: true
+---
+
+GearOne is a production automobile service platform, and it's live on the Google Play Store serving real customers in Jaipur. It digitizes vehicle servicing end to end: bookings, real-time tracking, digital payments, and customer management, all through a mobile-first experience. The ambitious part was never any single piece. It was the scope. I built and deployed three interconnected systems at the same time over four months as the full stack and mobile developer: a customer-facing React Native app, a Node.js/Express backend API, and a Next.js admin panel. This is the story of how those pieces fit together and what it took to ship them.
+
+## The problem
+
+Automobile service businesses in India run on phone calls, paper records, and manual coordination between customers, service staff, and management. A customer wanting a service calls someone. Someone writes it down. Status updates happen by phone again. Payments are cash or ad hoc. There was no centralized platform that let customers book a service, track its status in real time, pay digitally, and receive notifications, while also giving internal teams a single dashboard to manage the whole workflow.
+
+GearOne set out to replace that phone-and-paper operation with a real-time digital platform that all three audiences (customers, vendors, and the internal operations team) could rely on.
+
+## System architecture
+
+Here's the core decision that made the whole thing tractable: all three systems share a single Supabase (PostgreSQL) database. There is no synchronization layer between the mobile app, the backend, and the admin panel because there's nothing to sync. They all read and write the same source of truth, with authorization enforced at the database level.
+
+```
+Customer (Mobile App)  →  Node.js/Express API  →  Supabase PostgreSQL
+Admin Team (Next.js)   →  Node.js/Express API  →  Supabase PostgreSQL
+Push Notifications     →  Expo Push Network
+Payments               →  Razorpay → Webhook → Backend verification
+```
+
+This shared-database model is why a one-person build of three systems was even feasible. The data model is the contract, and Supabase Row Level Security keeps each actor inside its own lane.
+
+## The mobile app
+
+The customer app is built with React Native 0.81.5 and Expo 54, targeting Android and iOS from a single codebase. For navigation I used Expo Router 6, which gives you file-based screen routing that matches Next.js conventions. Moving between the app and the admin panel mentally costs almost nothing.
+
+Styling is handled with NativeWind 4, which brings Tailwind CSS utility classes into React Native UI. The realtime experience (customers watching their booking status change live) comes from Supabase Realtime subscriptions. Authentication supports email/password, Google Sign-In, and Apple Sign-In.
+
+Because the audience is Indian customers, the app ships multi-language support from day one: English, Hindi, Tamil, and Telugu, with runtime locale switching via `i18n-js`. Push notifications run on the Expo Push Network through `expo-notifications`, and in-app update delivery uses `sp-react-native-in-app-updates` so customers stay current without always going through the store. State management is split between Zustand 5 for local UI state and Tanstack React Query 5 (with Axios retry) for server state.
+
+## The backend
+
+The backend is a modular REST API on Node.js 18 and Express 4, organized by domain rather than by technical layer. Each domain (`bookings/`, `vehicles/`, `vendor/`, `payments/`, `notifications/`) owns its own routes, controllers, and business logic. This domain-driven structure keeps features isolated and makes the codebase easy to navigate.
+
+Database access goes through Supabase JS, with Row Level Security on every table. One key principle: there is no data access authorization logic in the app layer. All of it lives in the database as RLS policies. For frequently accessed endpoints there's an optional caching layer backed by Redis (Upstash).
+
+Push notification delivery uses `expo-server-sdk` for reliability, and transactional email (booking confirmations and receipts) goes out through Nodemailer. The API is documented with Swagger/OpenAPI via swagger-ui-express, and observability comes from Winston logging with structured error handling. On the security side, the production middleware stack is Helmet, CORS, and CSRF protection. The whole thing is deployed on Render with auto-deploy from the main branch and a health check at `/api/health`.
+
+## The admin panel
+
+The admin panel is a Next.js 15.5.9 application using the App Router, deployed on Vercel with GitHub integration and preview deployments on every PR. It provides full management interfaces for bookings, vehicles, vendors, users, offers, and events, plus a real-time booking approval and rejection workflow.
+
+For the UI I used shadcn/ui on top of Radix UI primitives, which gives a complete, accessible component suite. Operational metrics render through a Recharts analytics dashboard, and the data grids use Tanstack Table 8 for sortable, filterable views. Client state and server sync mirror the mobile app's approach: Zustand plus React Query. Role-based access control is, again, enforced through Supabase Row Level Security policies rather than reimplemented in the panel.
+
+## Payments done right
+
+Payments are the part where correctness matters most, and where shortcuts cause real damage. The Razorpay gateway is integrated directly in the React Native app via `react-native-razorpay`. On the backend, a webhook endpoint verifies the Razorpay signature for every single transaction, so the server only trusts payment events it can cryptographically confirm.
+
+The critical guarantee is atomicity. Booking state and payment state are updated in the same database transaction. There are no orphaned bookings when a payment fails, and no paid transactions without a corresponding confirmed booking. This transactional validation keeps checkout reliable even when the network drops mid-flow.
+
+Getting Razorpay's native module to work under Expo 54 took a custom Expo plugin living in `plugins/`. Rather than ejecting from the managed Expo workflow, I wrote native module patches as a config plugin to fix the compatibility issues, which kept the build clean.
+
+## Shipping to production
+
+Deployment spans four targets, each with its own pipeline. The mobile app ships to both stores without my needing a Mac. Android goes through EAS Build to an AAB (`gradlew bundleRelease`) and up to the Google Play Console, while iOS uses EAS Build plus EAS Submit straight to the App Store. The app version, 2.1.1, is managed in `app.config.js`, with environment configuration separated into `development` and `production` profiles.
+
+The backend runs on Render with auto-deploy and that `/api/health` check, and the admin panel runs on Vercel with preview deployments on PRs.
+
+| Layer | Technology | Version |
+|-------|-----------|---------|
+| Mobile | React Native + Expo | 0.81.5 / 54.0.33 |
+| Routing | Expo Router | 6.0.23 |
+| Mobile UI | NativeWind | 4.1.23 |
+| State | Zustand + React Query | 5.0.1 / 5.59 |
+| Backend | Node.js + Express | 18+ / 4.18.2 |
+| Database | Supabase (PostgreSQL) | 2.39.7 |
+| Payments | Razorpay | 2.9.2 |
+| Admin Panel | Next.js | 15.5.9 |
+| Admin UI | shadcn/ui + Radix | n/a |
+| Push | Expo Push Network | expo-notifications 0.32 |
+
+## Challenges I ran into
+
+The biggest challenge was just the scale of scope: building a scalable end-to-end app ecosystem across mobile, admin, and backend at once, rather than one at a time. Cross-platform deployment and release management for both Android and iOS added its own overhead. Each store has its own process, requirements, and failure modes.
+
+Payments were a challenge of correctness: integrating Razorpay and handling the transactional workflow through webhooks, making sure state stayed consistent. Real-time booking tracking and order management via Supabase Realtime had to work reliably across all actors at once. And designing the backend architecture and admin panel for internal operational teams meant thinking carefully about how non-technical staff would actually run day-to-day operations.
+
+## What I learned
+
+GearOne was a crash course in shipping and maintaining a real product:
+
+- Production mobile app deployment workflows for both the Android Play Store and the Apple App Store.
+- React Native and Expo architecture with Expo Router file-based routing.
+- Payment gateway integration and webhook verification in a production environment.
+- Backend scaling, API design, and Row Level Security policies with Supabase.
+- Admin dashboard design and operational tooling for internal business workflows.
+- Managing EAS Build and EAS Submit pipelines for Android and iOS without owning a Mac.
+- Multi-language mobile architecture with runtime locale switching across four languages.
+
+The throughline is that a clean data model and database-enforced authorization let one person carry three systems further than the headcount would suggest.
+
+## Closing
+
+GearOne replaced a phone-and-paper operation with a real-time digital platform. Three systems, shipped in four months, running in production today. You can see it for yourself on the [Google Play Store](https://play.google.com/store/apps/details?id=com.gearon.gearonjaipur&hl=en_IN).
