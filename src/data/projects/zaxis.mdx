@@ -1,6 +1,6 @@
 ---
 title: 'ZAxis - Minimal 3D Components Library'
-description: 'Production-ready 3D UI components for seamless integration into web apps with real-time customization and one-click code export'
+description: 'Production-ready 3D UI components that drop into web apps, with real-time customization and one-click code export'
 image: '/project/zaxis.webp'
 technologies: ['React', 'Three.js', 'React Three Fiber', 'TypeScript', 'Drei', 'Tailwind CSS']
 github: 'https://github.com/Kroszborg/zaxis'
@@ -18,7 +18,7 @@ challenges:
 learnings:
   - 'Advanced Three.js rendering techniques and WebGL fundamentals'
   - 'React Three Fiber and the Drei helper library ecosystem'
-  - 'Performance optimization — instancing, geometry merging, material reuse'
+  - 'Performance optimization: instancing, geometry merging, material reuse'
   - 'Component library design principles and type-safe APIs with TypeScript'
   - 'Real-time state synchronization between UI controls and 3D scenes'
 isPublished: true
@@ -28,13 +28,13 @@ isPublished: true
 
 ## Overview
 
-ZAxis is a minimal 3D UI components library built with React, Three.js, and React Three Fiber. It provides production-ready 3D components — buttons, cards, loaders, and more — that developers can drop into any React application without needing deep Three.js knowledge.
+ZAxis is a minimal 3D UI components library built with React, Three.js, and React Three Fiber. It ships production-ready 3D components (buttons, cards, loaders, and more) that you can drop into any React application without deep Three.js knowledge.
 
-Every component ships with a live interactive customization panel. Adjust colors, geometry, lighting, and animations in real time, then export the exact code for that configuration with one click.
+Every component comes with a live customization panel. You adjust colors, geometry, lighting, and animations in real time, then export the exact code for that configuration with one click.
 
 ## Problem Statement
 
-Adding 3D elements to a web application typically requires expertise in WebGL, Three.js, and React Three Fiber — a steep learning curve that takes days or weeks to climb. Most developers either skip 3D entirely or use heavy, opinionated 3D libraries that are hard to customize. There was no lightweight, component-first solution for adding production-quality 3D to React apps quickly.
+Adding 3D elements to a web application usually means knowing WebGL, Three.js, and React Three Fiber. That's a steep learning curve that takes days or weeks to climb. Most developers either skip 3D entirely or reach for heavy, opinionated 3D libraries that fight you when you try to customize them. I couldn't find a lightweight, component-first way to add production-quality 3D to a React app quickly.
 
 ## Key Features
 
@@ -42,14 +42,14 @@ Adding 3D elements to a web application typically requires expertise in WebGL, T
 
 - Pre-built 3D buttons, cards, loaders, and interactive elements
 - Each component is fully self-contained with no external dependencies beyond the library
-- Optimized for performance from day one — 60fps target on modern devices
+- Optimized for performance from day one, with a 60fps target on modern devices
 - Accessible: components respect `prefers-reduced-motion` for animation-sensitive users
 - Easy to integrate into existing React/Next.js projects with minimal setup
 
 ### Real-Time Customization Panel
 
 - Adjust colors, geometry size, lighting direction, and animation speed live in the browser
-- Changes reflect instantly in the 3D viewport — no page reload, no recompile
+- Changes show up instantly in the 3D viewport, with no page reload and no recompile
 - Persistent configuration: settings survive page refresh via `localStorage`
 - Designed as a developer playground for rapid iteration
 
@@ -57,7 +57,7 @@ Adding 3D elements to a web application typically requires expertise in WebGL, T
 
 - Every configuration state generates a copy-paste ready React component snippet
 - Exported code includes all props matching the current customization state
-- No abstraction leakage — exported code is clean, readable, and standalone
+- No abstraction leakage. The exported code is clean, readable, and standalone
 - Supports TypeScript and JavaScript output formats
 
 ## Tech Stack
@@ -84,7 +84,7 @@ Each component wraps a React Three Fiber `<Canvas>` scene with a fixed camera, l
 
 ### Real-Time Customization Engine
 
-The customization panel is a React-controlled form whose state is lifted to a context provider wrapping both the panel and the 3D canvas. Every input change triggers a state update that flows directly into the Three.js material/geometry parameters on the next frame — no intermediate serialization step. The configuration is also persisted to `localStorage` in a debounced `useEffect` so the developer's last setup is always waiting for them on reload.
+The customization panel is a React-controlled form whose state is lifted to a context provider wrapping both the panel and the 3D canvas. Every input change triggers a state update that flows straight into the Three.js material/geometry parameters on the next frame, with no intermediate serialization step. The configuration also gets persisted to `localStorage` in a debounced `useEffect`, so the developer's last setup is waiting for them on reload.
 
 ### Code Export System
 
@@ -95,14 +95,14 @@ The export system serializes the current context state into a JSX template strin
 Building ZAxis taught me:
 
 - How React Three Fiber bridges the declarative React model with Three.js's imperative scene graph
-- Advanced WebGL performance techniques: instancing, draw call reduction, and frame-budget thinking
-- How to design a genuinely ergonomic component API that hides complexity without removing flexibility
-- Building interactive developer tools where the state model drives both the UI and the 3D engine simultaneously
+- WebGL performance techniques: instancing, draw call reduction, and frame-budget thinking
+- How to design an ergonomic component API that hides complexity without taking away flexibility
+- Building interactive developer tools where one state model drives both the UI and the 3D engine at once
 - TypeScript generic constraints for strongly-typed configuration objects
 
 ## Impact
 
-ZAxis makes 3D a practical choice for React developers who want visual polish without a Three.js deep dive.
+ZAxis makes 3D a practical choice for React developers who want some visual polish without a Three.js deep dive.
 
 - **70% faster** – Reduced 3D implementation time vs. building from scratch with raw Three.js
 - **60fps target** – Smooth rendering via instancing and draw call optimization

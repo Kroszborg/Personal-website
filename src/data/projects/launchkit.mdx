@@ -1,6 +1,6 @@
 ---
 title: 'LaunchKit - AI Launch Copy Generator'
-description: 'AI-powered web app that generates launch-ready marketing copy — landing page headlines, social posts for Twitter/X, LinkedIn, and Product Hunt, plus a one-sentence perfect pitch'
+description: 'AI-powered web app that generates launch-ready marketing copy: landing page headlines, social posts for Twitter/X, LinkedIn, and Product Hunt, plus a one-sentence perfect pitch'
 image: '/project/launchkit.webp'
 technologies: ['Next.js', 'TypeScript', 'Google AI SDK', 'Vercel AI SDK', 'Tailwind CSS', 'Bun', 'Zod']
 github: 'https://github.com/Kroszborg/launchkit-4951'
@@ -29,22 +29,22 @@ isPublished: true
 
 ## Overview
 
-LaunchKit is an AI-powered web application that turns a GitHub URL or plain-text project description into a complete launch package — instantly, with no signup required.
+LaunchKit is an AI-powered web app that turns a GitHub URL or a plain-text project description into a complete launch package. No signup, and the output is instant.
 
-Paste your repo URL or describe what you built, and LaunchKit generates: a full landing page (headline, subheadline, feature bullets, CTA), platform-tuned social posts for Twitter/X, LinkedIn, and Product Hunt, and a single-sentence perfect pitch for bios and cold emails. Everything streams in real time as the model generates.
+Paste your repo URL or describe what you built, and LaunchKit generates a full landing page (headline, subheadline, feature bullets, CTA), platform-tuned social posts for Twitter/X, LinkedIn, and Product Hunt, and a single-sentence perfect pitch for bios and cold emails. Everything streams in real time as the model generates.
 
 **Live at [launchkit.kroszborg.co](https://launchkit.kroszborg.co)**
 
 ## Problem Statement
 
-Launching a side project requires writing the same information in five different formats for five different audiences — a landing page, a Twitter thread, a LinkedIn post, a Product Hunt tagline, and a one-liner pitch. This context-switching writing work takes hours and often gets skipped entirely, leading to projects that ship quietly with no audience. There was no tool that handled all of it from a single input.
+Launching a side project means writing the same information in five different formats for five different audiences: a landing page, a Twitter thread, a LinkedIn post, a Product Hunt tagline, and a one-liner pitch. All that context-switching takes hours, so it often gets skipped, and the project ships quietly with no audience. I couldn't find a tool that handled all of it from a single input, so I built one.
 
 ## Key Features
 
 ### Landing Page Copy Generator
 
 - Generates a complete landing page copy structure from your project description
-- Headline, subheadline, three feature bullets, and a call-to-action — all in one pass
+- Headline, subheadline, three feature bullets, and a call-to-action, all in one pass
 - Output is launch-ready with no editing required for most projects
 - Informed by a 26KB landing page template (`lib/landing-template.ts`) engineered for high-converting structure
 
@@ -58,7 +58,7 @@ Launching a side project requires writing the same information in five different
 ### Perfect Pitch Generator
 
 - One-sentence product description engineered for bios, cold emails, and intro conversations
-- Captures what the product does, who it's for, and why it matters — no filler language
+- Captures what the product does, who it's for, and why it matters, with no filler language
 - Structured to work as a standalone sentence in any context
 
 ### No Signup Required
@@ -66,7 +66,7 @@ Launching a side project requires writing the same information in five different
 - Fully functional without any account, payment, or API key
 - GitHub URL support: fetches the repository's raw README, strips Markdown, uses it as project context
 - All 4 output types stream in real time with a typewriter animation as the model generates
-- Results appear section by section — no waiting for everything to finish before seeing output
+- Results appear section by section, so there's no waiting for everything to finish before seeing output
 
 ## Tech Stack
 
@@ -87,15 +87,15 @@ LaunchKit uses the Vercel AI SDK's `streamText` for open-ended prose generation 
 
 ### Prompt Engineering
 
-The generation pipeline uses five separate, purpose-built prompts — one per output type. Each prompt specifies exact tone, length constraints, structural requirements, and persona for the target platform. A large landing page template (`lib/landing-template.ts`, 26KB) serves as the structural blueprint for the landing page generator, anchoring the model to proven high-converting copy patterns. Prompts are tested against edge cases: tools with no README, highly technical projects, and consumer-facing apps.
+The generation pipeline uses five separate, purpose-built prompts, one per output type. Each prompt specifies exact tone, length constraints, structural requirements, and persona for the target platform. A large landing page template (`lib/landing-template.ts`, 26KB) serves as the structural blueprint for the landing page generator, anchoring the model to proven high-converting copy patterns. I tested the prompts against edge cases: tools with no README, highly technical projects, and consumer-facing apps.
 
 ### GitHub README Parsing
 
-When a GitHub URL is provided, LaunchKit fetches the repository's raw README via the GitHub raw content CDN (`raw.githubusercontent.com`), strips Markdown formatting (headings, bold, links, code blocks) to plain text, and injects the cleaned content as project context into the generation prompts. This allows accurate copy for existing projects without requiring any manual description — the README does the work.
+When a GitHub URL is provided, LaunchKit fetches the repository's raw README via the GitHub raw content CDN (`raw.githubusercontent.com`), strips Markdown formatting (headings, bold, links, code blocks) to plain text, and injects the cleaned content as project context into the generation prompts. That gives accurate copy for existing projects without any manual description, since the README does the work.
 
 ### Design System
 
-LaunchKit uses a deliberate editorial aesthetic designed to feel like a premium developer tool:
+LaunchKit leans on an editorial aesthetic meant to feel like a premium developer tool:
 - **Background**: `#0a0a0a` near-black with no gradients
 - **Accents**: warm off-white `#e8e0d0` and muted ochre
 - **Typography**: Playfair Display (serif headlines), DM Mono (body and code output)
@@ -123,12 +123,12 @@ Building LaunchKit taught me:
 - How to compose multiple independent AI streams that each update separate UI sections simultaneously
 - Vercel AI SDK's `streamObject` for getting structured JSON output streamed token-by-token
 - Next.js 15 App Router edge runtime patterns for low-latency AI endpoint routing
-- How prompt structure — not just prompt content — determines output consistency across runs
+- How prompt structure, not just prompt content, determines output consistency across runs
 - Bun as a drop-in runtime for Next.js: faster installs, compatible dev server, no config changes
 
 ## Impact
 
-LaunchKit removes the most time-consuming part of launching a side project — writing the copy — and makes it a 30-second task.
+LaunchKit removes the most time-consuming part of launching a side project, writing the copy, and turns it into a 30-second task.
 
 - **Zero friction** – No account, no payment, no configuration required
 - **4 outputs simultaneously** – One input generates landing page, 3 social posts, and a pitch

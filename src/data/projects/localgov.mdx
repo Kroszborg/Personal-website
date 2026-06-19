@@ -1,6 +1,6 @@
 ---
 title: 'LocalGov.AI - AI-Powered Civic Technology Platform'
-description: 'AI-driven platform democratizing access to local government information with streaming responses and smart caching'
+description: 'AI platform that makes local government information accessible, with streaming responses and smart caching'
 image: '/project/LocalGovAI.webp'
 technologies: ['Next.js 14', 'TypeScript', 'Google Gemini 2.0', 'Supabase', 'Tailwind CSS', 'React 18', 'Framer Motion']
 github: 'https://github.com/Kroszborg/localgov.ai'
@@ -19,15 +19,15 @@ isPublished: true
 
 ## Overview
 
-LocalGov.AI is a production-grade civic technology platform that democratizes access to local government information by translating complex legal language into plain English. Users can ask natural language questions about local laws, ordinances, and policies and receive instant, AI-powered explanations with real-time streaming responses.
+LocalGov.AI is a civic technology platform that makes local government information accessible by translating dense legal language into plain English. You ask a question about a local law, ordinance, or policy in your own words, and the app streams back an explanation in real time.
 
 ## Problem Statement
 
-Government policies and legal documents are often written in complex legal jargon that's difficult for average citizens to understand. This creates a barrier between people and the laws that affect their daily lives.
+Government policies and legal documents are usually written in jargon that most people can't parse. That puts a wall between citizens and the laws that actually affect their daily lives.
 
 ## Solution
 
-LocalGov.AI uses Google Gemini 2.0 Flash API to break down complex legal text into simple, plain language that anyone can understand. The platform features streaming responses for real-time feedback, smart caching for 95% faster repeated queries, and location-specific intelligence covering 500+ cities.
+LocalGov.AI uses the Google Gemini 2.0 Flash API to turn dense legal text into plain language. Responses stream back as they're generated so you're not staring at a spinner. A caching layer makes repeated queries about 95% faster, and the answers are tailored to specific locations across 500+ cities.
 
 ## Key Features
 
@@ -140,20 +140,20 @@ CREATE TABLE bookmarks (
 
 ## What I Learned
 
-Building LocalGov.AI taught me:
-- **Streaming Technologies**: Implementing Server-Sent Events for real-time data delivery
-- **Advanced Caching**: Building custom caching systems with TTL and automatic cleanup
-- **Modern Authentication**: PKCE flow implementation for secure client-side apps
-- **AI Integration**: Google Gemini API integration with context-aware prompting
-- **Component Architecture**: Building with shadcn/ui and Radix UI primitives
-- **Database Design**: PostgreSQL schema design with proper foreign key relationships
-- **Performance Optimization**: Code splitting, lazy loading, and edge deployment
+A few things I picked up building this:
+- **Streaming**: Getting Server-Sent Events working for real-time data delivery
+- **Caching**: Writing a custom cache with TTL and automatic cleanup
+- **Authentication**: Implementing the PKCE flow for a client-side app
+- **AI Integration**: Wiring up the Gemini API with context-aware prompting
+- **Component Architecture**: Composing UI from shadcn/ui and Radix primitives
+- **Database Design**: PostgreSQL schemas with proper foreign key relationships
+- **Performance**: Code splitting, lazy loading, and edge deployment
 - **User Experience**: Toast notifications, loading states, and keyboard shortcuts
-- **Security Best Practices**: Rate limiting, CSP headers, and GDPR compliance
+- **Security**: Rate limiting, CSP headers, and GDPR compliance
 
 ## Impact
 
-LocalGov.AI makes government policies accessible to everyone, helping citizens understand their local laws and regulations without needing legal expertise.
+LocalGov.AI puts government policy within reach of anyone, so people can understand their local laws and regulations without needing a lawyer.
 
 **Results:**
 - **95% Performance Improvement**: Smart caching for repeated queries

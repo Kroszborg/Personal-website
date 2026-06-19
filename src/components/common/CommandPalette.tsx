@@ -39,14 +39,38 @@ export function CommandPalette() {
 
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
-      if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
+      // Match by physical key code first (layout-independent), then fall back
+      // to e.key so it works regardless of keyboard layout or case.
+      const isK = e.code === 'KeyK' || e.key?.toLowerCase() === 'k';
+
+      // Ctrl/Cmd + K. preventDefault + stopPropagation as early as possible so
+      // Firefox-based browsers (Zen, etc.) don't steal it for their own search.
+      if (isK && (e.metaKey || e.ctrlKey)) {
         e.preventDefault();
+        e.stopPropagation();
         setOpen((open) => !open);
+        return;
+      }
+
+      // "/" as a fallback to open search, unless the user is typing in a field.
+      if (e.key === '/' && !e.metaKey && !e.ctrlKey && !e.altKey) {
+        const target = e.target as HTMLElement | null;
+        const tag = target?.tagName;
+        const typing =
+          tag === 'INPUT' ||
+          tag === 'TEXTAREA' ||
+          tag === 'SELECT' ||
+          target?.isContentEditable === true;
+        if (!typing) {
+          e.preventDefault();
+          setOpen(true);
+        }
       }
     };
 
-    document.addEventListener('keydown', down);
-    return () => document.removeEventListener('keydown', down);
+    // Capture phase so we see the event before other handlers can stop it.
+    document.addEventListener('keydown', down, true);
+    return () => document.removeEventListener('keydown', down, true);
   }, []);
 
   // Prevent background scroll when dialog is open

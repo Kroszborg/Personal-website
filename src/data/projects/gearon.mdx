@@ -29,15 +29,15 @@ isPublished: true
 
 ## Overview
 
-GearOne is a production-grade automobile service platform built to digitize and streamline vehicle servicing, bookings, real-time tracking, and customer management through a mobile-first experience. The platform serves customers, vendors, and internal operations teams through three interconnected systems built and deployed simultaneously.
+GearOne is a production automobile service platform. It digitizes vehicle servicing, bookings, real-time tracking, and customer management in a mobile-first app. The platform serves customers, vendors, and internal operations teams through three connected systems that I built and shipped at the same time.
 
-The project covered everything: a React Native mobile app for customers, a Next.js admin panel for internal operations, a Node.js/Express backend API, Razorpay payment integration, Supabase database with Row Level Security, and complete production deployment pipelines for both Android and iOS.
+I owned the whole thing: a React Native mobile app for customers, a Next.js admin panel for internal operations, a Node.js/Express backend API, Razorpay payment integration, a Supabase database with Row Level Security, and the production deployment pipelines for both Android and iOS.
 
 **Live on [Google Play Store](https://play.google.com/store/apps/details?id=com.gearon.gearonjaipur&hl=en_IN)** · Admin panel at [gearon-admin.vercel.app](https://gearon-admin.vercel.app)
 
 ## Problem Statement
 
-Automobile service businesses in India operate on phone calls, paper records, and manual coordination between customers, service staff, and management. There was no centralized platform that let customers book services, track status in real time, pay digitally, and receive notifications — while giving internal teams a dashboard to manage the entire workflow from one place.
+Automobile service businesses in India operate on phone calls, paper records, and manual coordination between customers, service staff, and management. There was no centralized platform that let customers book services, track status in real time, pay digitally, and receive notifications. At the same time, internal teams had no dashboard to manage the whole workflow from one place.
 
 ## System Architecture
 
@@ -56,7 +56,7 @@ Payments               →  Razorpay → Webhook → Backend verification
 
 - **React Native 0.81.5 + Expo 54** for Android and iOS from a single codebase
 - **Expo Router 6** for file-based screen routing (matching Next.js conventions)
-- **NativeWind 4** — Tailwind CSS utility classes in React Native UI
+- **NativeWind 4** for Tailwind CSS utility classes in React Native UI
 - Real-time booking status updates via **Supabase Realtime** subscriptions
 - Authentication: email/password, **Google Sign-In**, and **Apple Sign-In**
 - **Multi-language support**: English, Hindi, Tamil, Telugu via `i18n-js`
@@ -66,7 +66,7 @@ Payments               →  Razorpay → Webhook → Backend verification
 
 ### Backend & API Infrastructure
 
-- **Node.js 18 + Express 4** — modular REST API organized by domain
+- **Node.js 18 + Express 4** running a modular REST API organized by domain
 - Routes: `bookings/`, `vehicles/`, `vendor/`, `payments/`, `notifications/`
 - **Supabase JS** for database access with Row Level Security on all tables
 - **Redis (Upstash)** for optional caching layer on frequently accessed endpoints
@@ -79,12 +79,12 @@ Payments               →  Razorpay → Webhook → Backend verification
 
 ### Admin Dashboard & Operations
 
-- **Next.js 15.5.9** admin panel with App Router — deployed on Vercel
+- **Next.js 15.5.9** admin panel with App Router, deployed on Vercel
 - Full management interfaces for: bookings, vehicles, vendors, users, offers, events
 - **Recharts** analytics dashboard for operational metrics
 - **Tanstack Table 8** for sortable, filterable data grids
 - Role-based access control via Supabase Row Level Security policies
-- **shadcn/ui + Radix UI** component system — full suite of primitives
+- **shadcn/ui + Radix UI** component system covering the full suite of primitives
 - **Zustand + React Query** for client-side state and server sync
 - Real-time booking approval/rejection workflow
 
@@ -92,7 +92,7 @@ Payments               →  Razorpay → Webhook → Backend verification
 
 - **Razorpay** payment gateway integrated in the React Native app via `react-native-razorpay`
 - Backend webhook endpoint verifies Razorpay signature for every transaction
-- Booking and payment states synced atomically — no orphaned bookings on payment failure
+- Booking and payment states synced atomically, so there are no orphaned bookings on payment failure
 - Custom Expo plugin (`plugins/`) to fix Razorpay native module compatibility with Expo 54
 - Transactional validation ensures reliable checkout even on network interruption
 
@@ -117,7 +117,7 @@ Payments               →  Razorpay → Webhook → Backend verification
 | Database | Supabase (PostgreSQL) | 2.39.7 |
 | Payments | Razorpay | 2.9.2 |
 | Admin Panel | Next.js | 15.5.9 |
-| Admin UI | shadcn/ui + Radix | — |
+| Admin UI | shadcn/ui + Radix | n/a |
 | TypeScript | All codebases | 5.x |
 | Push | Expo Push Network | expo-notifications 0.32 |
 
@@ -142,7 +142,7 @@ All tables have RLS policies: customers see only their own data; admin role bypa
 
 Building GearOne taught me:
 
-- Managing a complete startup product ecosystem end-to-end — mobile, backend, and admin simultaneously
+- Managing a complete startup product ecosystem end-to-end across mobile, backend, and admin at the same time
 - Shipping and maintaining production mobile applications on the Play Store and App Store
 - Structuring scalable backend systems with Node.js and modular domain-based API organization
 - Handling Razorpay payment gateway integration including webhook signature verification in production
@@ -163,8 +163,8 @@ GearOne digitized and centralized automobile service workflows for a startup, re
 
 ## Architecture Highlights
 
-- **Domain-driven backend**: `api/bookings`, `api/vehicles`, `api/vendor` — each domain owns its routes, controllers, and business logic
-- **RLS everywhere**: No data access logic in the app layer — all authorization enforced at the database level via Supabase Row Level Security
+- **Domain-driven backend**: `api/bookings`, `api/vehicles`, `api/vendor`, where each domain owns its routes, controllers, and business logic
+- **RLS everywhere**: No data access logic in the app layer. All authorization is enforced at the database level via Supabase Row Level Security
 - **Atomic payments**: booking state and payment state are updated in the same database transaction to prevent inconsistency on network failure
 - **Expo plugin layer**: custom native module patches in `plugins/` solve Razorpay + Expo 54 compatibility without ejecting
-- **Shared database**: all three systems (mobile, backend, admin) connect to the same Supabase project — no sync needed between them
+- **Shared database**: all three systems (mobile, backend, admin) connect to the same Supabase project, so there's no sync needed between them

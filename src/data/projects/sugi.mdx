@@ -17,7 +17,7 @@ challenges:
   - 'Implementing interactive rebase with pick/squash/reorder/drop in a keyboard-driven TUI'
   - 'Cross-platform binary distribution via npm, Homebrew, and go install simultaneously'
 learnings:
-  - 'Idiomatic Go programming — concurrency with goroutines, error wrapping, and interface design'
+  - 'Idiomatic Go programming: concurrency with goroutines, error wrapping, and interface design'
   - 'TUI development with the Charm Bracelet ecosystem: Bubbletea, Bubbles, and Lipgloss'
   - 'CLI architecture and hierarchical command routing with Cobra'
   - 'GitHub and GitLab REST API integration for PR/MR, CI badges, and review status'
@@ -29,15 +29,15 @@ isPublished: true
 
 ## Overview
 
-Sugi (杉 — *cedar tree, grows fast, stands tall, shaped with precision*) is a terminal UI git client written in Go using the Charm Bracelet ecosystem. It brings a full git workflow — staging, branching, commits, diffs, stash, interactive rebase, PR/MR management, AI commit messages, and multi-account switching — into a single keyboard-driven terminal interface.
+Sugi (杉, *cedar tree, grows fast, stands tall, shaped with precision*) is a terminal UI git client written in Go using the Charm Bracelet ecosystem. It pulls a full git workflow (staging, branching, commits, diffs, stash, interactive rebase, PR/MR management, AI commit messages, and multi-account switching) into a single keyboard-driven terminal interface.
 
-Built as a published open-source tool, Sugi is installable via npm, Homebrew, or `go install` and runs on Linux, macOS (Intel and ARM), and Windows.
+It's published as an open-source tool. You can install it via npm, Homebrew, or `go install`, and it runs on Linux, macOS (Intel and ARM), and Windows.
 
 **Install**: `npm install -g @kroszborg/sugi` · **GitHub**: [Kroszborg/sugi](https://github.com/Kroszborg/sugi)
 
 ## Problem Statement
 
-Most developers use git through a mix of raw CLI commands, IDE integrations, and occasional GUI tools — none of which do everything well in the terminal. `git log`, `git add -p`, and `git rebase -i` each require separate invocations and muscle memory for dozens of flags. GitHub PR management requires leaving the terminal entirely. There was no single terminal-native tool that covered the full git workflow — including AI-assisted commits and GitHub/GitLab integration — in one place.
+Most developers use git through a mix of raw CLI commands, IDE integrations, and occasional GUI tools. None of those do everything well in the terminal. `git log`, `git add -p`, and `git rebase -i` each need separate invocations and muscle memory for dozens of flags. Managing GitHub PRs means leaving the terminal entirely. I couldn't find a single terminal-native tool that covered the full git workflow in one place, AI-assisted commits and GitHub/GitLab integration included.
 
 ## Key Features
 
@@ -59,7 +59,7 @@ Most developers use git through a mix of raw CLI commands, IDE integrations, and
 ### AI-Powered Commit Messages
 
 - Generates conventional commit messages using **Groq AI** inference (free, no key required by default)
-- Default model: `llama-3.1-8b-instant` — fast and accurate for diff summarization
+- Default model: `llama-3.1-8b-instant`, fast and accurate for diff summarization
 - Staged diff is injected as context; output follows conventional commit format
 - Fully configurable: swap model, set API key, or disable in `~/.config/sugi/config.json`
 
@@ -81,11 +81,11 @@ Named token support for multiple GitHub and GitLab identities:
 }
 ```
 
-Switch accounts within a session — no re-authentication or shell variable changes needed.
+You can switch accounts within a session. No re-authentication or shell variable changes needed.
 
 ### Advanced Git Features
 
-- **Interactive Rebase** – Full rebase workflow: pick, squash, fixup, reorder, drop — all in the TUI
+- **Interactive Rebase** – Full rebase workflow: pick, squash, fixup, reorder, drop, all in the TUI
 - **Git Bisect** – Step through bisect sessions with `good`/`bad` marking and automatic narrowing
 - **File Blame** – Line-by-line blame with commit metadata and author info
 - **Reflog** – Browse reflog entries and restore HEAD to any previous state
@@ -95,7 +95,7 @@ Switch accounts within a session — no re-authentication or shell variable chan
 ### Command Palette
 
 - `ctrl+p` opens a fuzzy-search command palette across all available actions
-- Full keyboard-first navigation — no mouse required anywhere in the interface
+- Full keyboard-first navigation, no mouse required anywhere in the interface
 - Responsive layout: adapts for narrow terminals under 100 columns with a simplified view
 
 ## Tech Stack
@@ -113,17 +113,17 @@ Switch accounts within a session — no re-authentication or shell variable chan
 
 ### TUI Architecture
 
-Sugi uses Bubbletea's Elm-inspired Model-Update-View pattern. Each panel (Files, Branches, Commits, Diff, Stash, PRs) is an independent `tea.Model` with its own `Init()`, `Update()`, and `View()` methods. A root application model owns the active panel, global keybindings, and inter-panel message passing. The `Update()` function is the single point where all `tea.Msg` values are dispatched — git state changes, API responses, AI output, and resize events all flow through it.
+Sugi uses Bubbletea's Elm-inspired Model-Update-View pattern. Each panel (Files, Branches, Commits, Diff, Stash, PRs) is an independent `tea.Model` with its own `Init()`, `Update()`, and `View()` methods. A root application model owns the active panel, global keybindings, and inter-panel message passing. The `Update()` function is the single point where all `tea.Msg` values are dispatched. Git state changes, API responses, AI output, and resize events all flow through it.
 
 Lipgloss handles all layout: panels use `lipgloss.Place` for alignment and `lipgloss.JoinHorizontal`/`JoinVertical` for composing sections. Responsive breakpoints are checked on every `tea.WindowSizeMsg` and stored in the root model to switch between full and compact layouts.
 
 ### Git State Management
 
-All git operations run via `os/exec` wrapping standard git commands — no libgit2 binding, ensuring compatibility with any git version and configuration. State is fetched asynchronously using `tea.Cmd` functions that return `tea.Msg` values on completion; the UI never blocks waiting for a git operation. A `RefreshMsg` is dispatched after every write operation (stage, commit, checkout, rebase step) to re-fetch panel state.
+All git operations run via `os/exec` wrapping standard git commands. There's no libgit2 binding, which keeps it compatible with any git version and configuration. State is fetched asynchronously using `tea.Cmd` functions that return `tea.Msg` values on completion; the UI never blocks waiting for a git operation. A `RefreshMsg` is dispatched after every write operation (stage, commit, checkout, rebase step) to re-fetch panel state.
 
 ### AI Integration
 
-When the user requests an AI commit message, the staged diff is collected via `git diff --cached`, sanitized to remove binary content and diff headers beyond a token limit, and sent to the Groq API using the configured model. The response is streamed back and injected into the commit message textinput field, where the user can edit before committing. No API key is required by default — Groq's free tier handles the volume.
+When the user requests an AI commit message, the staged diff is collected via `git diff --cached`, sanitized to remove binary content and diff headers beyond a token limit, and sent to the Groq API using the configured model. The response is streamed back and dropped into the commit message textinput field, where the user can edit before committing. No API key is required by default, since Groq's free tier handles the volume.
 
 ### Distribution Pipeline
 
@@ -144,10 +144,10 @@ Building Sugi taught me:
 
 - Idiomatic Go: interface composition, error wrapping with `fmt.Errorf("%w", err)`, goroutine lifecycle management, and context cancellation
 - Bubbletea's reactive model and how to compose independent panel models without shared mutable state
-- How terminal UI layout differs fundamentally from web layout — everything is character-grid based
+- How terminal UI layout differs fundamentally from web layout, since everything is character-grid based
 - GitHub and GitLab API pagination, rate limiting, and webhook/event patterns for CI status polling
 - Cross-platform binary packaging: how npm, Homebrew, and the Go module proxy each have different requirements for the same artifact
-- Prompt engineering for diff-aware commit message generation — specifically how to truncate context intelligently to stay within model token limits
+- Prompt engineering for diff-aware commit message generation, specifically how to truncate context intelligently to stay within model token limits
 
 ## Impact
 
@@ -162,8 +162,8 @@ Sugi brings a full git workflow into the terminal without requiring a GUI applic
 
 ## Architecture Highlights
 
-- **Message-passing concurrency**: all async operations (git commands, API calls, AI requests) use Bubbletea's `tea.Cmd` → `tea.Msg` pipeline — the UI thread never blocks
+- **Message-passing concurrency**: all async operations (git commands, API calls, AI requests) use Bubbletea's `tea.Cmd` → `tea.Msg` pipeline, so the UI thread never blocks
 - **Single binary distribution**: Go's static compilation produces a self-contained executable with no runtime dependencies
-- **Config-driven AI**: the AI provider, model, and API key are fully configurable without code changes — swap Groq for any OpenAI-compatible endpoint
+- **Config-driven AI**: the AI provider, model, and API key are fully configurable without code changes, so you can swap Groq for any OpenAI-compatible endpoint
 - **Panel isolation**: each panel has its own model and state; switching panels is a root-model state change, not a component unmount/remount
-- **Adaptive layout**: every `WindowSizeMsg` recalculates all panel dimensions — Sugi handles terminal resize correctly at all times
+- **Adaptive layout**: every `WindowSizeMsg` recalculates all panel dimensions, so Sugi handles terminal resize correctly at all times
