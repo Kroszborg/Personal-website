@@ -17,6 +17,24 @@ import { Project } from '@/types/project';
 
 export const projects: Project[] = [
   {
+    title: 'Rune',
+    description:
+      'Customizable QR Code Library - Lightweight, framework-agnostic QR codes built from scratch per ISO/IEC 18004. Pure SVG with zero dependencies, React/Vue/Web Component adapters, a from-scratch decoder, and a CLI. Every style is proven scannable in CI.',
+    image: '/project/rune.webp',
+    link: 'https://rune.kroszborg.co',
+    technologies: [
+      { name: 'TypeScript', icon: <TypeScript key="typescript-rune" /> },
+      { name: 'React', icon: <ReactIcon key="react-rune" /> },
+      { name: 'Node.js', icon: <NodeJs key="nodejs-rune" /> },
+      { name: 'Next.js', icon: <NextJs key="nextjs-rune" /> },
+    ],
+    github: 'https://github.com/Kroszborg/rune',
+    live: 'https://rune.kroszborg.co',
+    details: true,
+    projectDetailsPageSlug: '/projects/rune',
+    isWorking: true,
+  },
+  {
     title: 'Beam',
     description:
       'End-to-end encrypted, peer-to-peer file transfer - Files are encrypted in the browser and streamed directly between devices over WebRTC. The server is a blind relay that only brokers the handshake. No uploads, no accounts.',

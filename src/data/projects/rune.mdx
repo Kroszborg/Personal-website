@@ -1,0 +1,198 @@
+---
+title: 'Rune - Customizable QR Code Library'
+description: 'Lightweight, fully customizable, framework-agnostic QR code library. The encoder is built from scratch per ISO/IEC 18004, renders pure SVG with zero runtime dependencies, and ships adapters for React, Vue, and Web Components plus a from-scratch decoder and a CLI. Every style is proven scannable in CI.'
+image: '/project/rune.webp'
+technologies: ['TypeScript', 'React', 'Vue', 'Web Components', 'SVG', 'Node.js', 'Next.js', 'Vitest', 'Turborepo', 'pnpm']
+github: 'https://github.com/Kroszborg/rune'
+live: 'https://rune.kroszborg.co'
+timeline: '2 weeks'
+role: 'Solo Library Author'
+team: 'Solo'
+status: 'completed'
+featured: true
+challenges:
+  - 'Implementing the full ISO/IEC 18004 encoding pipeline from scratch: segmentation, Reed-Solomon error correction over GF(256), block interleaving, masking, and format/version bits'
+  - 'Making heavily stylized QR codes (custom shapes, gradients, logos, background images) that still scan reliably on real devices'
+  - 'Proving correctness automatically: matching a reference encoder bit-for-bit and decoding every rendered style back in CI'
+  - 'Serving four frameworks (React, Vue, vanilla, Web Component) from one core without duplicating logic'
+  - 'Keeping the core at ~8 KB gzip with zero runtime dependencies while supporting PNG/JPEG/WebP/PDF export'
+  - 'Writing a from-scratch decoder with Reed-Solomon correction to close the loop on the format'
+learnings:
+  - 'The QR code specification end to end: data segments, Galois field math, Reed-Solomon codes, mask evaluation, and quiet zones'
+  - 'Designing a rendering pipeline where geometry, painting, and SVG assembly are cleanly separated'
+  - 'Property-style verification: scan-back tests that render SVG to pixels and decode them are worth more than snapshot tests'
+  - 'Monorepo library publishing: tsup builds, changesets versioning, optional lazy-loaded native peers'
+  - 'Honest benchmarking: measuring throughput, SSR latency, and bundle size with the same methodology for every competitor'
+isPublished: true
+---
+
+# Rune - Customizable QR Code Library
+
+## Overview
+
+Rune generates clean, scannable, beautifully customizable QR codes. The core engine encodes data from scratch per ISO/IEC 18004 and renders pure SVG - no canvas, no runtime dependencies. Thin adapters bring the same engine to React, Vue, and vanilla JS / Web Components, a separate from-scratch decoder turns QR codes back into data, and a CLI does both from the terminal.
+
+Most QR libraries either give you a black-and-white square or bolt styling onto someone else's encoder. Rune owns the whole pipeline - encoding, geometry, painting, export - which is what makes deep customization possible without breaking scannability.
+
+**Live at [rune.kroszborg.co](https://rune.kroszborg.co)** - docs, an interactive playground, examples, and a reproducible benchmark page.
+
+## Problem Statement
+
+QR codes are everywhere, but making one that matches a brand is surprisingly hard. The popular libraries fall into two camps: tiny encoders that only output plain squares, and styling wrappers that treat the QR matrix as a black box, so their custom shapes and logos regularly produce codes that fail to scan.
+
+I wanted a library where *every* visual element - data dots, finder rings, finder cores, gradients, logos, frames - is customizable, and where scannability is not a hope but a property verified in CI. That required building the encoder myself instead of wrapping one.
+
+## The Monorepo
+
+Rune is a pnpm + Turborepo monorepo with six published packages and a docs app, all sharing one core engine:
+
+```
+rune/
+├── packages/
+│   ├── rune          @kroszborg/rune         — core: encoder, SVG renderer, export, data builders, presets
+│   ├── rune-react    @kroszborg/rune-react   — React <QRCode> component
+│   ├── rune-vue      @kroszborg/rune-vue     — Vue 3 <QRCode> component
+│   ├── rune-wc       @kroszborg/rune-wc      — vanilla renderRune() + <rune-qr> Web Component
+│   ├── rune-decode   @kroszborg/rune-decode  — from-scratch decoder (matrix + image, Reed-Solomon)
+│   └── rune-cli      @kroszborg/rune-cli     — `rune` terminal generator + decoder
+├── apps/docs          — Next.js docs site: playground, API, examples, benchmark
+└── bench/             — reproducible benchmark harness vs popular libraries
+```
+
+The adapters are deliberately thin. The core exposes `renderToParts()` (SVG attributes + body), and each framework wrapper just mounts that into its own component model. A rendering fix lands once and every target gets it.
+
+## The Encoder, From Scratch
+
+The core implements the full ISO/IEC 18004 encoding pipeline in TypeScript:
+
+1. **Segmentation.** Input is analyzed and split into numeric, alphanumeric, or byte segments, picking the densest mode the data allows so the symbol stays as small as possible.
+2. **Version and capacity selection.** The smallest QR version (1-40) that fits the segments at the requested error-correction level is chosen from the spec's capacity tables.
+3. **Error correction.** Data codewords are expanded with Reed-Solomon parity computed over GF(256), using the per-version, per-ECL block structure from the spec, then interleaved across blocks.
+4. **Matrix construction.** Finder patterns, alignment patterns, timing patterns, and reserved format/version areas are placed, and data bits are zig-zagged into the remaining modules.
+5. **Masking.** All eight mask patterns are applied and scored with the spec's four penalty rules; the lowest-penalty mask wins, then format bits (ECL + mask, BCH-protected) are written.
+
+There are no dependencies in any of this - the Galois-field arithmetic, bit buffer, and capacity tables are all part of the package.
+
+### Proven Correct, Not Assumed Correct
+
+Two layers of tests keep the encoder honest:
+
+- **Bit-for-bit reference matching.** The encoder's output matrix is compared against `node-qrcode` for a corpus of payloads, versions, and ECLs. Any deviation from the de-facto reference implementation fails the suite.
+- **Scan-back round-trips in CI.** Every rendered style variant - each dot shape, finder style, gradient, logo, and frame configuration - is rendered to SVG, rasterized to PNG with resvg, and decoded with jsQR. If a styled code stops being scannable, the build fails:
+
+```ts
+function scan(options: RuneOptions, px = 512): string | null {
+  const svg = toSVGString({ ...options, size: px });
+  const rendered = new Resvg(svg, { fitTo: { mode: 'width', value: px } }).render();
+  const result = jsQR(new Uint8ClampedArray(rendered.pixels), rendered.width, rendered.height);
+  return result?.data ?? null;
+}
+```
+
+This is the guarantee the styling wrappers can't make: customization is only allowed to exist if a real decoder can still read the result.
+
+## The Renderer
+
+Rendering is split into three layers - geometry (which modules exist and what shape each one takes), paint (colors, gradients, background images), and an SVG builder that assembles the final markup.
+
+- **Dot styles:** `square · dot · rounded · classy · diamond · star` - rounded style is neighbor-aware, so adjacent modules fuse into fluid shapes instead of overlapping blobs.
+- **Finder patterns:** 5 ring styles (`square · rounded · extra-rounded · circle · leaf`) × 3 core styles, freely mixed per corner.
+- **Gradients:** linear or radial, per element (dots, rings, cores, background can each have their own).
+- **Logos:** centered with automatic safety - embedding a logo auto-raises error correction to level H (unless explicitly set) and clamps the logo's size to what that ECL can absorb, so the covered modules stay recoverable.
+- **Frames + CTA text:** "SCAN ME"-style labeled frames around the code.
+- **Presets:** named base styles for one-line good-looking output.
+- **Accessibility:** every SVG carries a role and an `ariaLabel` (defaulting to the encoded value).
+
+Everything outputs **pure SVG**. `toSVGString()` is synchronous, DOM-free, and safe in SSR, edge runtimes, and Node - there is no canvas anywhere in the core.
+
+## Export Without Bloat
+
+The main entry stays dependency-free by pushing raster/PDF export behind optional, lazily-imported peers:
+
+| Output | Where | How |
+| --- | --- | --- |
+| SVG string | anywhere | `toSVGString()` - sync, zero deps |
+| PNG / JPEG / WebP | browser | `toDataURL()` via Canvas |
+| PNG / JPEG / WebP / PDF | Node | `@kroszborg/rune/node` via `@resvg/resvg-js`, `sharp`, `pdf-lib` |
+
+The native binaries only load if you actually import the Node export path, so the core's install and bundle cost never pays for features you don't use.
+
+## Data Builders
+
+Instead of making users memorize payload grammars, `data.*` builders produce correctly-escaped content strings for WiFi networks, vCards, email, SMS, phone, geo coordinates, calendar events, crypto payments, and more:
+
+```ts
+import { data, toSVGString } from '@kroszborg/rune';
+
+const svg = toSVGString({
+  value: data.wifi({ ssid: 'Home', password: 'hunter2' }),
+  dots: { style: 'rounded' },
+});
+```
+
+The escaping rules (WiFi/MECARD/vCard special characters) are handled and unit-tested in one place.
+
+## The Decoder
+
+`@kroszborg/rune-decode` closes the loop: a from-scratch decoder that reads QR codes back. It handles both a clean module matrix and raw image pixels - locating finder patterns, sampling the grid, reading format info, un-masking, de-interleaving blocks, and running Reed-Solomon error correction to recover the payload even from damaged codes. Writing the decoder was also the best possible audit of the encoder: each side had to agree with the spec, not just with the other.
+
+## The CLI
+
+`@kroszborg/rune-cli` puts the whole library in the terminal:
+
+```bash
+rune "https://example.com" -o qr.png --dots rounded --square extra-rounded --preset mint
+rune "SCAN ME" --frame "SCAN ME" -o cta.pdf
+rune decode qr.png
+```
+
+Output format is inferred from the file extension (`.svg` `.png` `.jpeg` `.webp` `.pdf`); with no `-o` flag the SVG streams to stdout, so it composes with pipes.
+
+## Benchmarked, Reproducibly
+
+The repo ships a benchmark harness (`pnpm bench`) that measures Rune against `qrcode.react` and `react-qr-code` with the same methodology for every library: SVG-generation throughput over a fixed time window, SSR latency percentiles via `renderToStaticMarkup`, and minified+gzip bundle size via esbuild. Results are written to JSON and rendered on the docs site's Benchmark page, so the published numbers are regenerated by the same script anyone can run.
+
+On the current run, Rune's core `toSVGString` sustains ~1,266 renders/sec vs ~864 for qrcode.react and ~457 for react-qr-code, with the core at **8.1 KB gzip** - while doing far more styling work per render.
+
+## Docs Site & Playground
+
+The docs app (Next.js 15) is part of the monorepo and doubles as a live test bed:
+
+- **Playground** - every option live-editable with instant preview and copy-paste code output
+- **API reference** - full `RuneOptions` documentation
+- **Examples** - gallery of styled, scannable codes
+- **Benchmark** - the harness results, rendered from the generated JSON
+
+## Tech Stack
+
+| Layer | Technology |
+| --- | --- |
+| Language | TypeScript 5 (strict, ESM) |
+| Core | Zero runtime dependencies, pure SVG |
+| Adapters | React 19, Vue 3, Custom Elements |
+| Node export | @resvg/resvg-js, sharp, pdf-lib (optional, lazy) |
+| Testing | Vitest + resvg + jsQR scan-back round-trips |
+| Tooling | pnpm workspaces, Turborepo, tsup, Biome, Changesets |
+| Docs | Next.js 15 + Tailwind CSS |
+
+## Challenges & Trade-offs
+
+- **Spec depth.** ISO/IEC 18004 is dense: mode indicators, per-version character count widths, block interleaving, BCH-protected format bits, eight mask penalty rules. Getting any of it subtly wrong produces codes that look right and scan never. The bit-for-bit reference tests were non-negotiable.
+- **Style vs. scannability.** Every visual liberty (fused rounded dots, gradients, logos, background images) eats decoding margin. The answer was structural: keep finder patterns high-contrast, clamp logo area by ECL, and let the CI scan-back suite veto anything a decoder can't read.
+- **One engine, four frameworks.** The temptation is to write four renderers. Instead the core renders to parts and adapters stay under ~100 lines each, which is the only way a solo maintainer keeps four targets correct.
+- **Small core vs. rich export.** PNG/PDF export needs native binaries. Lazy optional peers keep them out of the default install entirely rather than shipping a 20 MB "lightweight" library.
+
+## What I Learned
+
+- **The QR format end to end** - from Galois-field arithmetic and Reed-Solomon parity to why the quiet zone matters, learned by implementing both directions of the pipeline.
+- **Verification as a feature.** Scan-back tests that prove every style decodes are worth more than any amount of visual snapshot testing, and they're what lets the library promise customization safely.
+- **Library ergonomics.** Sync SSR-safe rendering, escaped data builders, and auto-clamped logos are all "the library absorbs the sharp edge so the user doesn't" decisions.
+- **Publishing discipline.** Changesets-driven versioning, tsup dual builds, and per-package READMEs across six npm packages from one repo.
+- **Honest benchmarking** - same harness, same payloads, same measurement for every competitor, with the script in the repo.
+
+## Impact
+
+- **Six published npm packages** under `@kroszborg/*` serving React, Vue, vanilla JS, Web Components, Node, and the terminal from one from-scratch engine.
+- **8.1 KB gzip core** with zero runtime dependencies, out-rendering established React QR libraries while doing more styling work.
+- **Every style proven scannable** - correctness is enforced by CI decoding real rasterized output, not assumed.
+- **Complete round trip** - Rune both writes and reads the format, which almost no styling-focused QR library does.
