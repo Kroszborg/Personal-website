@@ -19,22 +19,10 @@ type ContributionItem = {
   level: 0 | 1 | 2 | 3 | 4;
 };
 
-type GitHubContributionResponse = {
-  date: string;
-  contributionCount: number;
-  contributionLevel:
-    | 'NONE'
-    | 'FIRST_QUARTILE'
-    | 'SECOND_QUARTILE'
-    | 'THIRD_QUARTILE'
-    | 'FOURTH_QUARTILE';
+type GitHubContributionsResponse = {
+  total?: Record<string, number>;
+  contributions?: unknown[];
 };
-
-function filterLastYear(contributions: ContributionItem[]): ContributionItem[] {
-  const oneYearAgo = new Date();
-  oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
-  return contributions.filter((item) => new Date(item.date) >= oneYearAgo);
-}
 
 export default function Github() {
   const [contributions, setContributions] = useState<ContributionItem[]>([]);
@@ -51,41 +39,39 @@ export default function Github() {
       try {
         setIsLoading(true);
         const response = await fetch(
-          `${githubConfig.apiUrl}/${githubConfig.username}.json`,
+          `${githubConfig.apiUrl}/${githubConfig.username}?y=last`,
         );
-        const data: { contributions?: unknown[] } = await response.json();
+        if (!response.ok) {
+          setHasError(true);
+          return;
+        }
+        const data: GitHubContributionsResponse = await response.json();
 
         if (data?.contributions && Array.isArray(data.contributions)) {
-          const flattenedContributions = data.contributions.flat();
-          const contributionLevelMap = {
-            NONE: 0,
-            FIRST_QUARTILE: 1,
-            SECOND_QUARTILE: 2,
-            THIRD_QUARTILE: 3,
-            FOURTH_QUARTILE: 4,
-          };
-          const validContributions = flattenedContributions
+          const validContributions = data.contributions
             .filter(
-              (item: unknown): item is GitHubContributionResponse =>
+              (item: unknown): item is ContributionItem =>
                 typeof item === 'object' &&
                 item !== null &&
                 'date' in item &&
-                'contributionCount' in item &&
-                'contributionLevel' in item,
+                'count' in item &&
+                'level' in item,
             )
-            .map((item: GitHubContributionResponse) => ({
+            .map((item) => ({
               date: String(item.date),
-              count: Number(item.contributionCount || 0),
-              level: (contributionLevelMap[
-                item.contributionLevel as keyof typeof contributionLevelMap
-              ] || 0) as ContributionItem['level'],
+              count: Number(item.count || 0),
+              level: Math.min(
+                Math.max(Number(item.level) || 0, 0),
+                4,
+              ) as ContributionItem['level'],
             }));
 
           if (validContributions.length > 0) {
             setTotalContributions(
-              validContributions.reduce((sum, item) => sum + item.count, 0),
+              data.total?.lastYear ??
+                validContributions.reduce((sum, item) => sum + item.count, 0),
             );
-            setContributions(filterLastYear(validContributions));
+            setContributions(validContributions);
           } else {
             setHasError(true);
           }
