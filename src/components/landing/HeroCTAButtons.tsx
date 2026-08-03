@@ -2,6 +2,7 @@
 
 import CV from '@/components/svgs/CV';
 import Chat from '@/components/svgs/Chat';
+import Heart from '@/components/svgs/Heart';
 import { Button } from '@/components/ui/button';
 import { InteractiveEyes } from '@/components/ui/interactive-eye';
 import { LiquidMetalButton } from '@/components/ui/liquid-metal';
@@ -16,11 +17,13 @@ interface HeroButton {
   text: string;
   href: string;
   icon: string;
+  external?: boolean;
 }
 
 const buttonIcons = {
   CV: CV,
   Chat: Chat,
+  Heart: Heart,
 };
 
 interface HeroCTAButtonsProps {
@@ -71,6 +74,27 @@ export default function HeroCTAButtons({ buttons }: HeroCTAButtonsProps) {
                 <InteractiveEyes size={16} pupilSize={6} gap={4} />
               </span>
             </LiquidMetalButton>
+          );
+        }
+
+        if (button.external) {
+          return (
+            <MagneticButton key={index} asChild className="inline-block">
+              <Button
+                variant="outline"
+                className="group border-pink-500/40 hover:border-pink-500/70 hover:bg-pink-500/10"
+                asChild
+              >
+                <a href={button.href} target="_blank" rel="noopener noreferrer">
+                  {IconComponent && (
+                    <span className="inline-flex items-center text-pink-500 transition-transform duration-300 group-hover:scale-125">
+                      <IconComponent />
+                    </span>
+                  )}
+                  {button.text}
+                </a>
+              </Button>
+            </MagneticButton>
           );
         }
 

@@ -97,14 +97,9 @@ export default function Github() {
   return (
     <section className="border-border/50 border-b py-12 last:border-0">
       <div className="mb-8 flex items-end justify-between">
-        <div>
-          <p className="text-muted-foreground text-[10px] font-semibold tracking-[0.2em] uppercase">
-            Activity
-          </p>
-          <h2 className="text-foreground mt-1.5 text-xl font-bold tracking-tight">
-            GitHub
-          </h2>
-        </div>
+        <h2 className="text-foreground text-xl font-bold tracking-tight">
+          GitHub Activity
+        </h2>
         {!isLoading && !hasError && totalContributions > 0 && (
           <p className="text-muted-foreground pb-1 text-xs tabular-nums">
             <span className="text-foreground font-semibold">

@@ -34,8 +34,8 @@ export const Quote = () => {
         <p className="dark:text-dark-white-300 relative z-10 font-mono font-medium text-pretty text-zinc-500 italic">
           “{quote}”
         </p>
-        <p className="text-highlight text-right font-mono text-pretty italic">
-          — {author}
+        <p className="text-highlight text-right font-mono text-sm text-pretty italic">
+          {author}
         </p>
       </div>
     </Container>

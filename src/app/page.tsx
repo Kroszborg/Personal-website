@@ -6,7 +6,6 @@ import Github from '@/components/landing/Github';
 import HeroSidebar from '@/components/landing/HeroSidebar';
 import Journey from '@/components/landing/Journey';
 import Work from '@/components/landing/Projects';
-import Setup from '@/components/landing/Setup';
 import React from 'react';
 
 export default function page() {
@@ -33,7 +32,6 @@ export default function page() {
               <About />
               <Github />
               <CTA />
-              <Setup />
               <Journey />
             </main>
           </div>

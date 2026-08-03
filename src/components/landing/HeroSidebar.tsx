@@ -45,8 +45,8 @@ export default function HeroSidebar() {
           <Image
             src={avatar}
             alt={name}
-            width={56}
-            height={56}
+            width={160}
+            height={160}
             className="ring-border/60 size-20 rounded-full object-cover ring-2"
             priority
           />

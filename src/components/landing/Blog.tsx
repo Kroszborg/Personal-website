@@ -12,7 +12,7 @@ export default function Blog() {
 
   return (
     <Container className="mt-20">
-      <SectionHeading subHeading="Featured" heading="Blogs" />
+      <SectionHeading heading="Blogs" />
       <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-2">
         {posts.slice(0, 2).map((post) => (
           <BlogCard key={post.slug} post={post} />

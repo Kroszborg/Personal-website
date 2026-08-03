@@ -43,7 +43,7 @@ function JourneyRow({ item }: { item: (typeof journeyItems)[number] }) {
 export default function Journey() {
   return (
     <section className="border-border/50 border-b py-12 last:border-0">
-      <SectionHeading subHeading="My" heading="Journey" />
+      <SectionHeading heading="Journey" />
       <div className="mt-6">
         {journeyItems.map((item) => (
           <JourneyRow key={item.name} item={item} />

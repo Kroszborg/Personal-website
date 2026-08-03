@@ -9,7 +9,7 @@ import { Button } from '../ui/button';
 export default function Projects() {
   return (
     <section className="border-border/50 border-b py-6 last:border-0">
-      <SectionHeading subHeading="Featured" heading="Projects" />
+      <SectionHeading heading="Projects" />
       <ProjectList className="mt-6" projects={projects.slice(0, 4)} />
       <div className="mt-6">
         <Button

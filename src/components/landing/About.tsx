@@ -11,7 +11,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 export default function About() {
   return (
     <section className="border-border/50 border-b py-12 last:border-0">
-      <SectionHeading subHeading="About" heading="Me" />
+      <SectionHeading heading="About" />
       <div className="mt-8 flex flex-col gap-6">
         <div className="group overflow-hidden rounded-xl">
           <Image
@@ -50,9 +50,6 @@ export default function About() {
             viewport={{ once: true }}
             transition={{ duration: 0.4, delay: 0.2 }}
           >
-            <p className="text-muted-foreground text-[10px] font-semibold tracking-[0.12em] uppercase">
-              Skills
-            </p>
             <div className="flex flex-wrap gap-3">
               {mySkills.map((skill) => (
                 <Tooltip key={skill.key}>

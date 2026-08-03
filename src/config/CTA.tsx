@@ -11,7 +11,7 @@ export const ctaConfig = {
   profileAlt: 'Abhiman Panwar',
 
   // CTA button settings
-  linkText: 'Get in Touch',
+  linkText: 'Book a call',
   calLink: 'abhiman-panwar/30min',
 
   // Pre-text message

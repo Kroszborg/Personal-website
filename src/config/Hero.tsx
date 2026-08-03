@@ -106,6 +106,13 @@ export const heroConfig = {
       href: '/contact',
       icon: 'Chat',
     },
+    {
+      variant: 'outline',
+      text: 'Sponsor',
+      href: 'https://github.com/sponsors/Kroszborg',
+      icon: 'Heart',
+      external: true,
+    },
   ],
 };
 

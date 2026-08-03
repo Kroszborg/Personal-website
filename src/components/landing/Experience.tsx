@@ -10,7 +10,7 @@ import { ExpandableExperienceCard } from './ExpandableExperienceCard';
 export default function Experience() {
   return (
     <section className="border-border/50 border-b py-12 last:border-0">
-      <SectionHeading subHeading="Featured" heading="Experience" />
+      <SectionHeading heading="Experience" />
       <div className="mt-6 flex flex-col gap-4">
         {experiences.slice(0, 3).map((experience: Experience) => (
           <ExpandableExperienceCard

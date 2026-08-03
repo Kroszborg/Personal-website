@@ -1,4 +1,5 @@
 import Calender from '@/components/svgs/Calender';
+import Gear from '@/components/svgs/Gear';
 import React from 'react';
 
 export type JourneyItem = {
@@ -14,6 +15,12 @@ export const journeyItems: JourneyItem[] = [
     description: 'A timeline of my learning, projects, and milestones.',
     icon: Calender,
     href: '/journey',
+  },
+  {
+    name: 'Gears Used',
+    description: 'Productivity tools and gear I use to get my work done.',
+    icon: Gear,
+    href: '/gears',
   },
   // Temporarily hidden - uncomment to re-enable certificates page
   // {
