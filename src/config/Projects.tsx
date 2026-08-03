@@ -17,6 +17,23 @@ import { Project } from '@/types/project';
 
 export const projects: Project[] = [
   {
+    title: 'KroszTube',
+    description:
+      'YouTube Downloader CLI & Library - Download videos in any quality without re-encoding, extract MP3s, fetch clean text transcripts from captions, and stream straight to your terminal (including ASCII-art playback). Wraps yt-dlp and ffmpeg with automatic, checksum-verified binary provisioning.',
+    image: '/project/krosztube.webp',
+    link: 'https://krosztube.kroszborg.co',
+    technologies: [
+      { name: 'TypeScript', icon: <TypeScript key="typescript-krosztube" /> },
+      { name: 'Node.js', icon: <NodeJs key="nodejs-krosztube" /> },
+      { name: 'FFmpeg', icon: <FFmpeg key="ffmpeg-krosztube" /> },
+      { name: 'Next.js', icon: <NextJs key="nextjs-krosztube" /> },
+    ],
+    live: 'https://krosztube.kroszborg.co',
+    details: true,
+    projectDetailsPageSlug: '/projects/krosztube',
+    isWorking: true,
+  },
+  {
     title: 'Rune',
     description:
       'Customizable QR Code Library - Lightweight, framework-agnostic QR codes built from scratch per ISO/IEC 18004. Pure SVG with zero dependencies, React/Vue/Web Component adapters, a from-scratch decoder, and a CLI. Every style is proven scannable in CI.',
