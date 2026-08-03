@@ -1,0 +1,145 @@
+---
+title: 'KroszTube - YouTube Downloader CLI & Library'
+description: 'CLI and typed Node.js library that downloads YouTube videos in any quality without re-encoding, extracts MP3s, turns caption tracks into clean text transcripts, and streams straight to the terminal - including ASCII-art playback. Wraps yt-dlp and ffmpeg with automatic, checksum-verified binary provisioning.'
+image: '/project/krosztube.webp'
+technologies: ['TypeScript', 'Node.js', 'FFmpeg', 'yt-dlp', 'Commander', 'Vitest', 'tsup', 'Next.js']
+github: 'https://github.com/Kroszborg/krosztube'
+live: 'https://krosztube.kroszborg.co'
+timeline: 'Ongoing'
+role: 'Solo Developer'
+team: 'Solo'
+status: 'completed'
+featured: true
+challenges:
+  - 'Guaranteeing truly lossless downloads: most format selectors force mp4-only streams and silently downgrade 4K/8K to 1080p, so KroszTube avoids ext filters entirely and handles containers by remux (ffmpeg stream copy), never re-encoding'
+  - 'Zero-setup binary management: provisioning pinned, checksum-verified yt-dlp and static ffmpeg builds per-OS on first run, with env-var escape hatches and a one-command updater'
+  - 'Turning YouTube auto-captions into readable text: stripping the rolling-window repeats where each cue re-states the tail of the previous one, then reflowing cues into paragraphs'
+  - 'Rendering actual video as ANSI art in the terminal with truecolor/256-color auto-detection, native frame-rate pacing, and audio'
+  - 'Shipping one engine as both a CLI (stable exit codes, progress bars, batch files) and a typed library (AbortSignal support, error subclasses with stable codes)'
+learnings:
+  - 'How YouTube streams actually work: separate video/audio streams, VP9/AV1 at 4K+, and why container choice is a remux decision, not an encode decision'
+  - 'Designing CLIs as first-class interfaces: documented exit codes, quiet JSON modes for scripting, and errors that tell the user what to do next'
+  - 'Managing external binaries responsibly - pinned versions, checksum verification, and clean upgrade paths beat "just download the latest"'
+  - 'Text-processing details matter: caption dedupe is a token-overlap problem, not a string-equality problem'
+  - 'The value of a full rewrite: v1/v2 were an unreleased Python CLI + Tkinter GUI; v3 is a from-scratch TypeScript rewrite that finally shipped to npm'
+isPublished: true
+---
+
+# KroszTube - YouTube Downloader CLI & Library
+
+## Overview
+
+KroszTube downloads YouTube videos in any quality without re-encoding, extracts MP3s, fetches clean text transcripts, and streams straight to the terminal. It is both a CLI (`npm install -g krosztube`) and a typed Node.js library, wrapping yt-dlp and ffmpeg - both downloaded and managed automatically on first run with pinned, checksum-verified builds. No manual setup, works on Windows, macOS, and Linux.
+
+**Live at [krosztube.kroszborg.co](https://krosztube.kroszborg.co)** - docs and the full command reference. Published on [npm](https://www.npmjs.com/package/krosztube).
+
+## Problem Statement
+
+Downloading a YouTube video properly is harder than it looks. Most tools either re-encode (slow, lossy) or use format selectors that force mp4-only streams - and since 4K+ streams on YouTube are VP9/AV1, an mp4 filter silently downgrades your "best quality" download to 1080p. On top of that, yt-dlp and ffmpeg are powerful but unfriendly: you have to install them, keep yt-dlp updated as YouTube changes things, and memorize format-selector syntax.
+
+I wanted one tool that gets the *true* best stream, never touches the bytes, manages its own binaries, and also handles the adjacent jobs I kept reaching for: MP3 extraction, readable transcripts, and quick "just play it" streaming.
+
+## Truly Lossless Downloads
+
+KroszTube never re-encodes video. The format selector deliberately avoids `[ext=mp4]` filters so 4K/8K VP9/AV1 streams are never silently excluded, and container handling is done by remux - an ffmpeg *stream copy*, which is a byte-for-byte container operation:
+
+```ts
+export function videoFormatSelector(quality: Quality = 'best'): string {
+  if (quality === 'best') return 'bestvideo+bestaudio/best';
+  return `bestvideo[height<=${quality}]+bestaudio/best[height<=${quality}]`;
+}
+```
+
+- `--container mp4` (default): original streams remuxed into `.mp4`
+- `--container original`: whatever the source streams merge into natively (`.webm`/`.mkv`) - guaranteed untouched
+
+MP3 extraction is the one deliberate exception: it is a transcode by definition, at a chosen bitrate up to 320 kbit/s.
+
+## Zero-Setup Binary Management
+
+On first run, KroszTube downloads a pinned yt-dlp release and a static ffmpeg build for the current OS/architecture into `~/.krosztube/bin`, verifying checksums as it goes. A small state file tracks installed versions.
+
+- yt-dlp is pinned to a known-good tag per release; `krosztube update` moves past it when YouTube changes break downloads
+- ffmpeg static builds don't rot, so that pin is permanent
+- `KROSZTUBE_HOME`, `KROSZTUBE_YTDLP`, and `KROSZTUBE_FFMPEG` env vars let power users relocate the cache or supply their own binaries
+- `krosztube doctor` prints binary paths, versions, detected media players, and the cache directory
+
+The result: `npm install -g krosztube` is genuinely the whole setup.
+
+## Transcripts Without an API
+
+`krosztube transcript` turns a video into a readable script using YouTube's own caption tracks (manual preferred, auto-generated fallback) - entirely free and local, no transcription API and no keys.
+
+The hard part is that auto-captions arrive as a rolling window: each cue repeats the tail of the previous one. KroszTube's dedupe treats it as a token-overlap problem - for each cue it finds the longest prefix whose normalized tokens match the previous cue's trailing tokens, strips it, and drops cues that end up empty:
+
+```ts
+let overlap = 0;
+const max = Math.min(prevTokens.length, normalized.length);
+for (let k = max; k > 0; k--) {
+  const tail = prevTokens.slice(prevTokens.length - k);
+  const head = normalized.slice(0, k);
+  if (tail.every((t, idx) => t === head[idx])) {
+    overlap = k;
+    break;
+  }
+}
+```
+
+Deduped cues are then reflowed into paragraphs. Output formats: `txt` (clean paragraphs), `md` (with a metadata header), `srt`/`vtt` (timestamped subtitles), plus optional `[mm:ss]` markers.
+
+## Terminal Streaming & ASCII Playback
+
+`krosztube play` streams a video without saving it, handing off to **mpv** (preferred) or **VLC**. Two extra modes push the terminal further:
+
+- `--audio`: audio-only radio mode with a now-playing panel
+- `--ascii`: renders the actual video as ANSI art inside the terminal, auto-detecting truecolor vs 256-color support, pacing frames at the native frame rate, with audio playing alongside
+
+## CLI and Library, One Engine
+
+The same core powers both interfaces:
+
+```ts
+import { download, getTranscript, renderTranscript } from 'krosztube';
+
+const { files } = await download('https://youtu.be/...', {
+  quality: 1080,
+  container: 'mp4',
+  onProgress: (e) => console.log(`${e.phase} ${e.percent?.toFixed(0)}%`),
+});
+```
+
+- **CLI:** eight commands (`download`, `audio`, `transcript`, `info`, `formats`, `play`, `update`, `doctor`), concurrent batch downloads with per-download progress bars, playlist support, batch files, `--json` output for scripting, and documented exit codes (0-6, 130)
+- **Library:** fully typed, errors are subclasses of `KroszTubeError` with stable `.code` values (`DOWNLOAD_FAILED`, `VIDEO_UNAVAILABLE`, `TRANSCRIPT_NOT_FOUND`, ...), and long operations accept an `AbortSignal`
+
+## Tech Stack
+
+| Layer | Technology |
+| --- | --- |
+| Language | TypeScript 5 (strict, ESM) |
+| Engine | yt-dlp + static ffmpeg (auto-provisioned, checksum-verified) |
+| CLI | Commander, cli-progress, picocolors, p-limit |
+| Process handling | execa |
+| Testing | Vitest unit suite + opt-in live smoke tests |
+| Build | tsup, npm workspaces monorepo |
+| Landing site | Next.js (static export) |
+
+## Challenges & Trade-offs
+
+- **Lossless vs compatible.** The truly untouched container (`webm`/`mkv`) isn't what most people expect; the default mp4 remux keeps bytes identical but AV1-in-mp4 may not play on very old devices. KroszTube makes the trade-off explicit with `--container` instead of hiding it.
+- **Depending on a moving target.** YouTube changes constantly. Pinning yt-dlp keeps installs reproducible, `krosztube update` provides the escape hatch, and error messages point to it when downloads start failing.
+- **From Python to TypeScript.** v1/v2 were an interactive Python CLI with a Tkinter GUI that never shipped. The v3 rewrite dropped the GUI, embraced the terminal, and got the tool onto npm where installing it is one command.
+- **Respecting the platform.** The README and site are explicit: the tool is for personal backups of your own content, Creative-Commons material, and other authorized use.
+
+## What I Learned
+
+- **How YouTube delivery actually works** - separate video/audio streams, codec/container relationships, and why "mp4 please" can secretly mean "1080p please"
+- **CLI design as UX design** - stable exit codes, `--json` modes, actionable error hints, and a `doctor` command pay off immediately
+- **Binary supply-chain hygiene** - pinned tags and checksum verification make "downloads its own binaries" trustworthy instead of scary
+- **Text algorithms in the small** - the caption dedupe is 30 lines, but getting it right required thinking in normalized token overlaps rather than string comparisons
+
+## Impact
+
+- **Published on npm** as `krosztube` - a one-command install for lossless YouTube downloading, MP3 extraction, transcripts, and terminal streaming
+- **Zero-setup engine management** - pinned, checksum-verified yt-dlp + ffmpeg provisioning that survives YouTube's constant changes via `krosztube update`
+- **Transcripts with no API keys** - clean, deduped, reflowed text from caption tracks, free and local
+- **A CLI that's also a real library** - typed API, stable error codes, AbortSignal support, powering both interfaces from one engine
