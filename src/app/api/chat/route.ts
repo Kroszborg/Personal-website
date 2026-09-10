@@ -8,6 +8,9 @@ const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
 const RATE_LIMIT_WINDOW = 60 * 1000;
 const RATE_LIMIT_MAX_REQUESTS = 5;
 
+const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
+const GROQ_MODEL = process.env.GROQ_MODEL ?? 'openai/gpt-oss-120b';
+
 const chatSchema = z.object({
   message: z.string().min(1).max(2000),
   history: z
@@ -128,9 +131,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = process.env.GROQ_API_KEY;
     if (!apiKey) {
-      console.error('GEMINI_API_KEY not configured');
+      console.error('GROQ_API_KEY not configured');
       return NextResponse.json(
         { error: 'AI service not configured' },
         { status: 500 },
@@ -140,53 +143,59 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validatedData = chatSchema.parse(body);
 
-    // Prepare the request body for Gemini REST API
-    const requestBody = {
-      contents: [
-        {
-          parts: [{ text: systemPrompt }],
-          role: 'user',
-        },
-        {
-          parts: [
-            { text: 'I understand. I will act as your portfolio assistant.' },
-          ],
-          role: 'model',
-        },
-        // Add conversation history
-        ...validatedData.history.map((msg) => ({
-          ...msg,
-          parts: msg.parts.map((part) => ({
-            ...part,
-            text: msg.role === 'user' ? sanitizeInput(part.text) : part.text,
-          })),
-        })),
-        // Add current message
-        {
-          parts: [{ text: sanitizeInput(validatedData.message) }],
-          role: 'user',
-        },
-      ],
-      generationConfig: {
-        maxOutputTokens: 512,
-        temperature: 0.7,
-        topP: 0.8,
-        topK: 40,
+    // Build OpenAI-compatible messages. The frontend still sends Gemini-style
+    // history ({ role: 'user' | 'model', parts: [{ text }] }), so map it here.
+    const messages = [
+      { role: 'system' as const, content: systemPrompt },
+      ...validatedData.history.map((msg) => {
+        const text = msg.parts.map((part) => part.text).join('\n');
+        return msg.role === 'user'
+          ? { role: 'user' as const, content: sanitizeInput(text) }
+          : { role: 'assistant' as const, content: text };
+      }),
+      {
+        role: 'user' as const,
+        content: sanitizeInput(validatedData.message),
       },
-    };
+    ];
 
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:streamGenerateContent?alt=sse&key=${apiKey}`;
-
-    const response = await fetch(geminiUrl, {
+    const response = await fetch(GROQ_API_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        Authorization: `Bearer ${apiKey}`,
       },
-      body: JSON.stringify(requestBody),
+      body: JSON.stringify({
+        model: GROQ_MODEL,
+        messages,
+        stream: true,
+        max_tokens: 1024,
+        temperature: 0.7,
+        top_p: 0.8,
+        reasoning_effort: 'low',
+      }),
     });
 
     if (!response.ok) {
-      throw new Error(`Gemini API error: ${response.status}`);
+      const errorBody = await response.text().catch(() => '');
+      console.error(`Groq API error ${response.status}:`, errorBody);
+
+      if (response.status === 429) {
+        return NextResponse.json(
+          {
+            error:
+              'The AI assistant is temporarily unavailable due to quota limits. Please try again later.',
+          },
+          { status: 503 },
+        );
+      }
+      if (response.status === 404 || response.status === 400) {
+        return NextResponse.json(
+          { error: 'AI model is unavailable. Please try again later.' },
+          { status: 503 },
+        );
+      }
+      return NextResponse.json({ error: 'AI service error' }, { status: 502 });
     }
 
     const encoder = new TextEncoder();
@@ -196,9 +205,10 @@ export async function POST(request: NextRequest) {
         try {
           const parser = createParser({
             onEvent: (event) => {
+              if (event.data === '[DONE]') return;
               try {
                 const data = JSON.parse(event.data);
-                const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+                const text = data?.choices?.[0]?.delta?.content;
                 if (text) {
                   // Send as Server-Sent Event format
                   const sseData = `data: ${JSON.stringify({ text })}\n\n`;
@@ -221,7 +231,7 @@ export async function POST(request: NextRequest) {
             const { done, value } = await reader.read();
             if (done) break;
 
-            parser.feed(decoder.decode(value));
+            parser.feed(decoder.decode(value, { stream: true }));
           }
 
           // Send completion signal

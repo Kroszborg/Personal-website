@@ -150,7 +150,7 @@ const ChatBubble: React.FC = () => {
 
   const sendMessage = async (messageText: string, botMessageId: number) => {
     try {
-      // Prepare conversation history for Gemini API format
+      // Prepare conversation history in the format the /api/chat route expects
       const history = messages.slice(-10).map((msg) => ({
         role: msg.sender === 'user' ? ('user' as const) : ('model' as const),
         parts: [{ text: msg.text }],
@@ -168,7 +168,10 @@ const ChatBubble: React.FC = () => {
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorData = await response.json().catch(() => null);
+        throw new Error(
+          errorData?.error ?? `HTTP error! status: ${response.status}`,
+        );
       }
 
       const reader = response.body?.getReader();
@@ -235,7 +238,12 @@ const ChatBubble: React.FC = () => {
           msg.id === botMessageId
             ? {
                 ...msg,
-                text: "I'm sorry, I'm having trouble responding right now. Please try again later.",
+                text:
+                  error instanceof Error &&
+                  error.message &&
+                  !error.message.startsWith('HTTP error')
+                    ? error.message
+                    : "I'm sorry, I'm having trouble responding right now. Please try again later.",
                 isStreaming: false,
               }
             : msg,

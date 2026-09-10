@@ -46,7 +46,7 @@ Create a `.env` file in the root directory with the following variables:
 ```env
 TELEGRAM_BOT_TOKEN="your-token"
 TELEGRAM_CHAT_ID="your-chat-id"
-GEMINI_API_KEY="your-api-key"
+GROQ_API_KEY="your-groq-api-key"
 NODE_ENV="development"
 NEXT_PUBLIC_URL="http://localhost:3000"
 NEXT_PUBLIC_UMAMI_SRC="your-umami-script-url"
