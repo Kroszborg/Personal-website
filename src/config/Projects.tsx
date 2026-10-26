@@ -17,6 +17,25 @@ import { Project } from '@/types/project';
 
 export const projects: Project[] = [
   {
+    title: 'Bridge',
+    description:
+      'Open-source SMS & Phone Verification Infrastructure - Send SMS through Android phones you already own, or MSG91/Twilio/Vonage/Plivo, behind one developer API. Delivery timelines, signed webhooks, OTP Verify with failover, broadcasts, a team dashboard, TypeScript SDK, CLI and MCP server. Hosted or self-hosted as one Go binary plus Postgres.',
+    image: '/project/bridge.webp',
+    link: 'https://bridge.kroszborg.co',
+    technologies: [
+      { name: 'Go', icon: <Go key="go-bridge" /> },
+      { name: 'PostgreSQL', icon: <PostgreSQL key="postgresql-bridge" /> },
+      { name: 'Next.js', icon: <NextJs key="nextjs-bridge" /> },
+      { name: 'TypeScript', icon: <TypeScript key="typescript-bridge" /> },
+      { name: 'Tailwind CSS', icon: <TailwindCss key="tailwind-bridge" /> },
+    ],
+    github: 'https://github.com/Kroszborg/bridge',
+    live: 'https://bridge.kroszborg.co',
+    details: true,
+    projectDetailsPageSlug: '/projects/bridge',
+    isWorking: true,
+  },
+  {
     title: 'KroszTube',
     description:
       'YouTube Downloader CLI & Library - Download videos in any quality without re-encoding, extract MP3s, fetch clean text transcripts from captions, and stream straight to your terminal (including ASCII-art playback). Wraps yt-dlp and ffmpeg with automatic, checksum-verified binary provisioning.',

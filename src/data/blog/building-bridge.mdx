@@ -1,0 +1,78 @@
+---
+title: 'Building Bridge: An Open-Source SMS API on Phones You Already Own'
+description: 'How I built Bridge, open-source SMS and phone verification infrastructure that sends through Android phones or SMS providers behind one API, with Go, PostgreSQL as the job queue, a Kotlin gateway app and a Next.js dashboard.'
+image: '/project/bridge.webp'
+tags: ['Go', 'PostgreSQL', 'Android', 'Next.js', 'Open Source']
+date: '2026-10-26'
+isPublished: true
+---
+
+Every side project I've built eventually needs to send an SMS: a login code, an order update, a reminder. And every time, the options were the same: pay per message to a provider, register sender IDs and templates before the first message goes out, and write code against one vendor's SDK. Meanwhile I had an old Android phone with an unlimited SMS plan sitting in a drawer.
+
+Bridge is what I built to fix that. It's open-source infrastructure for SMS and phone verification: your application calls one API, and Bridge sends the message through an Android phone you own or through MSG91, Twilio, Vonage or Plivo. It handles the queue, retries, delivery reports, webhooks and one-time passwords. You can use it hosted at [bridge.kroszborg.co](https://bridge.kroszborg.co), or run it yourself with `docker compose up -d`. This is what I learned building it.
+
+## One API, interchangeable routes
+
+The core idea is that your code shouldn't care what delivers the message:
+
+```bash
+curl "$BRIDGE_URL/v1/messages" \
+  -H "Authorization: Bearer $BRIDGE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"to": "+919876543210", "message": "Your order has shipped."}'
+```
+
+Underneath, dispatch goes through a `Provider` interface. An Android phone is one route, each SMS provider is another, and a simulator is a third, used by `bk_test_` keys so you can build against the full API without sending a real SMS. A project can route to phones only, to providers only, or to phones first with providers as a fallback. Switching is a setting, not a rewrite.
+
+## Choosing boring on purpose
+
+I wanted self-hosting to be one binary and one database, which drove most of the technical decisions:
+
+- **Go** for the API and worker. The bottleneck is the SIM, not the CPU, but Go makes thousands of long-lived phone WebSockets cheap and ships as one static binary.
+- **PostgreSQL for everything**: data, the job queue ([River](https://riverqueue.com/)), cross-process notifications (`LISTEN/NOTIFY`) and rate limits. No Redis.
+- **Huma** to define the API in Go structs. It generates an OpenAPI 3.1 spec, and the dashboard and SDK TypeScript types are generated from that, so the three can't drift.
+- **Next.js 16** for the dashboard and docs site, **Kotlin with Jetpack Compose** for the Android app.
+
+The decision I'm happiest with is using Postgres as the queue. When you send a message, Bridge inserts the message row, its first timeline event and its River dispatch job **in the same transaction**. If anything fails, all three roll back. There's simply no state where a message exists without a job to send it, which removes a whole class of "message stuck in queued forever" bugs that I'd have needed a reconciler to clean up otherwise.
+
+## Getting a job to the right phone
+
+Here's a problem I didn't see coming. Phones hold a WebSocket open to the API process. Jobs run in the worker process. The worker knows a message is ready but can't talk to the phone.
+
+The fix was Postgres again. The worker calls `pg_notify('device_jobs', device_id)`. Every API instance listens on that channel, and whichever one holds that phone's socket wakes up, claims the queued messages and pushes them down. If the phone is offline, nothing is lost: it picks up its queue when it reconnects, and a push notification (Firebase or UnifiedPush) can wake it sooner. It works the same with one API instance or several, with no extra infrastructure.
+
+## Never send a code twice
+
+Retries are easy to add and dangerous to get wrong. If a login code is sent twice, the user gets two codes and doesn't know which one to type. So Bridge is careful at every layer:
+
+1. **The API is idempotent.** Send an `Idempotency-Key` header and a retry returns the original message instead of creating a new one. Reusing a key with a different body gets a `409`.
+2. **Phones de-duplicate** jobs by message and attempt, so a job delivered twice over a flaky connection is still sent once.
+3. **Ambiguous failures aren't retried.** If Android reports `generic_failure`, the SMS may or may not have gone out. Bridge marks it failed instead of guessing. Only failures that clearly mean "didn't send" (no service, radio off) are retried.
+
+For Verify, the one-time password flow, there's one deliberate second send: **delivery failover**. If a code's SMS hasn't left within 30 seconds, Bridge sends the same code once more through a different route: a provider if the project allows it, otherwise a different phone, never the one that's stuck. A code that never arrives is a lost sign-up, so this one is worth it.
+
+## Phones are not servers
+
+The Android side taught me the most, because the constraints come from the OS and the carrier, not from my code.
+
+**Android's SMS limit.** Android asks the phone's owner to approve each SMS beyond about 30 per 30 minutes from one app. Until someone taps *Allow*, the message just waits. So Bridge paces each phone under that limit and queues the rest. Want more throughput? Add another phone.
+
+**Carrier limits.** Operators can block SIMs that send far more than a person would, even on "unlimited" plans. Every phone therefore has a daily cap, 100 messages in any rolling 24 hours by default. Dispatch skips phones at their cap, broadcasts pace themselves to what's left, and messages no phone can take go to a provider or fail with a clear `daily_limit_reached`. I'd rather report a limit honestly than pretend a SIM is a bulk SMS gateway.
+
+**Battery.** An app that holds a WebSocket all day can drain a phone quickly. The heartbeat adapts: every 60 seconds while charging, 5 minutes on battery, 10 minutes in battery saver, with no WebSocket pings in between. When the network drops, the app waits for Android's network callback instead of retrying blindly, with jittered exponential backoff from 1 second to 5 minutes. A missed heartbeat ack triggers a reconnect.
+
+The app ships in two builds: a fully FOSS one using UnifiedPush for F-Droid, and one with Firebase Cloud Messaging for the Play Store.
+
+![Bridge dashboard: messages sent and received through a paired Pixel 8](/project/bridge-messages.webp)
+
+## Everything around the API
+
+Once messages were reliable, the rest of the platform grew around them: a team dashboard with roles, audit logs and request logs; signed webhooks; broadcasts to up to 10,000 numbers; scheduled and repeating messages in any time zone; an opt-out list that honours `STOP`; keyword auto-replies; forwarding to Telegram, Slack, Discord or email; and a Verify widget that drops into any sign-up form. There's a zero-dependency TypeScript SDK, a `bridgectl` CLI, an MCP server so AI assistants can send and inspect messages, and integrations for Supabase Auth, Better Auth, Auth0, Firebase and Clerk.
+
+For the hosted version I added billing with Dodo Payments, and one rule from that work stuck with me: **a webhook is a signal, not the truth.** When a subscription webhook arrives, Bridge doesn't apply its body. It re-reads the subscription from the provider and claims the webhook ID in the same transaction that applies the change. Late, repeated or out-of-order deliveries can't undo newer state. Plans only exist when `BRIDGE_CLOUD=true`, so the self-hosted build is never limited.
+
+## Open source, responsibly
+
+The server, dashboard and Android app are AGPL-3.0, and the SDK is MIT so it can go anywhere. Bridge is also explicitly not a marketing tool: it doesn't help anyone bypass carrier rules or DLT registration, broadcasts always honour opt-outs, and throughput is limited by your SIMs and carriers.
+
+Bridge 1.0 was the first stable release, and 1.1 is out now. Try it at [bridge.kroszborg.co](https://bridge.kroszborg.co), or read the code on [GitHub](https://github.com/Kroszborg/bridge).

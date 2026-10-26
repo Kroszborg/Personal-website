@@ -1,0 +1,178 @@
+---
+title: 'Bridge - Open-Source SMS & Phone Verification Infrastructure'
+description: 'Open-source infrastructure for SMS and phone verification. Send through Android phones you already own or through MSG91, Twilio, Vonage and Plivo, all behind one developer API with delivery timelines, signed webhooks, OTP Verify with failover, broadcasts, schedules, a team dashboard, a TypeScript SDK, a CLI and an MCP server. Hosted, or self-hosted as one Go binary plus PostgreSQL.'
+image: '/project/bridge.webp'
+technologies: ['Go', 'PostgreSQL', 'River', 'Huma', 'Next.js', 'React', 'TypeScript', 'Tailwind CSS', 'Kotlin', 'Jetpack Compose', 'Docker']
+github: 'https://github.com/Kroszborg/bridge'
+live: 'https://bridge.kroszborg.co'
+timeline: 'October 2026'
+role: 'Solo Developer'
+team: 'Solo'
+status: 'completed'
+featured: true
+challenges:
+  - 'Making a message and its delivery job impossible to separate: the message row and its River job are inserted in the same Postgres transaction, so neither can exist without the other'
+  - 'Routing work to phones held by a different process: the worker cannot hold a device WebSocket, so it signals with pg_notify and whichever API instance holds that socket claims and pushes the queued messages'
+  - 'Retrying without ever sending a one-time code twice: idempotency keys on the API, phones that de-duplicate by message and attempt, and ambiguous Android failures that are deliberately not retried'
+  - 'Living within real SIM limits: pacing each phone under Android''s ~30 SMS per 30 minutes approval threshold and a rolling 24-hour daily cap so operators don''t block the SIM'
+  - 'Keeping an always-connected Android gateway alive on battery: adaptive heartbeats, network-callback-driven reconnects with jittered backoff, and FCM or UnifiedPush wake-ups'
+learnings:
+  - 'Postgres can be the whole backend: data, job queue (River), notifications (LISTEN/NOTIFY) and rate limits, which keeps self-hosting to one binary and one database'
+  - 'Code-first API contracts pay off: Huma generates OpenAPI 3.1 from Go structs, and the dashboard and SDK types are generated from that'
+  - 'Webhooks are signals, not truth: billing re-reads the subscription from the provider on every event, so late or out-of-order deliveries can never undo a newer change'
+  - 'Honest limits beat hidden ones: Bridge reports carrier and SIM limits in the timeline instead of pretending a phone can send unlimited SMS'
+  - 'Shipping a whole platform alone means scoping ruthlessly: one stable API, with phones and providers as interchangeable routes underneath'
+isPublished: true
+---
+
+# Bridge - Open-Source SMS & Phone Verification Infrastructure
+
+## Overview
+
+Bridge is open-source infrastructure for SMS and phone verification. Your application calls one stable API, and Bridge handles the queue, retries, delivery status and logs. Underneath, the message goes out through **Android phones you already own** (using their SIM) or through a **professional SMS provider** (MSG91, Twilio, Vonage, Plivo), as a fallback or for everything, without changing your code.
+
+**Live at [bridge.kroszborg.co](https://bridge.kroszborg.co)**, with full [documentation](https://bridge.kroszborg.co/docs/). Source on [GitHub](https://github.com/Kroszborg/bridge). Bridge 1.0 is the first stable release, and the current version is 1.1.
+
+```text
+Application
+     |  POST /v1/messages
+     v
+  Bridge  --  queue, retries, delivery status, logs
+     |
+     v
+Android phone + SIM   or   MSG91 / Twilio / Vonage / Plivo
+     |
+     v
+    SMS
+```
+
+![Bridge dashboard: the Messages page showing incoming and outgoing SMS with delivery status per phone](/project/bridge-messages.webp)
+
+## Problem Statement
+
+Sending an SMS, or a login code, should be a solved problem, but for small teams and indie developers it rarely feels solved. Commercial SMS APIs are priced per message and per country, often need DLT registration or sender approval before the first message goes out, and lock your code to one vendor's SDK. Meanwhile most people already have a spare Android phone with an unlimited SMS plan sitting in a drawer.
+
+Existing "use your phone as an SMS gateway" apps solve the cost problem but stop there: no real delivery tracking, no retries you can trust, no OTP flow, no webhooks, no team dashboard. I wanted the developer experience of a commercial SMS platform with the freedom to route through hardware I own, and the option to switch to a provider whenever a phone can't send.
+
+## What Bridge Does
+
+- **SMS through your own phones.** The Android gateway app pairs by QR code or sign-in, sends through the phone's SIM (dual-SIM aware), reports sent and delivered, and can forward incoming SMS.
+- **SMS providers.** MSG91, Twilio, Vonage and Plivo, as a fallback when no phone can send or as the main route, with delivery reports.
+- **Delivery you can follow.** Every message has a timeline from queued to the carrier's delivery report, plus [Standard Webhooks](https://www.standardwebhooks.com/)-signed events and a live event stream.
+- **Verify.** One-time passwords that Bridge generates, sends and checks, with per-product Verify apps, delivery failover, fraud limits, Cloudflare Turnstile, and a drop-in widget or hosted page that returns a signed token.
+- **Messaging tools.** Broadcasts to up to 10,000 numbers with variables, scheduled and repeating messages in any time zone, an opt-out list, keyword auto-replies and forwarding rules (to another phone, Telegram, Slack, Discord, a webhook or email).
+- **A dashboard for the whole team.** Messages, Send, Verify, Automation, Phones, Providers, API keys, webhooks, request logs, a playground, usage charts, teams with roles, an audit log and a public status page.
+- **Developer tools.** A zero-dependency TypeScript SDK (`npm install @kroszborg/bridge`), the `bridgectl` CLI, and an MCP server for AI assistants.
+- **Integrations.** Supabase Auth (built-in Send SMS hook), Better Auth, Auth0, Firebase, Clerk, and n8n, Zapier or Make.
+
+## Architecture
+
+The stack is deliberately boring: **Go, PostgreSQL and Next.js**. Self-hosting needs one binary and one database.
+
+```text
+       Developer app / curl / SDK            Browser
+                   |  Bearer bk_live_...         | cookie session
+                   v                             v
+         +-------------------+        +--------------------+
+         |   bridge serve    |<-------|  Next.js dashboard |
+         |  REST /v1 (Huma)  |        +--------------------+
+         |  device WebSocket |<----------- Android gateway
+         +---------+---------+
+                   | SQL + River insert (same tx)
+                   v
+         +-------------------+        +--------------------+
+         |    PostgreSQL     |<------>|   bridge worker    |  dispatch, retries,
+         | data + job queue  |        |                    |  webhooks, cleanup
+         +-------------------+        +--------------------+
+```
+
+- **One binary, several roles.** `bridge serve` (REST API and device WebSockets), `bridge worker` (background jobs), `bridge migrate`. Small installs run `bridge serve --worker` for both.
+- **Postgres is the queue.** Jobs run on [River](https://riverqueue.com/). A message row and its dispatch job are inserted in the **same transaction**, so a message can never exist without its job, or the other way round.
+- **Jobs find their phone through `pg_notify`.** The worker can't hold a phone's WebSocket, so it publishes `pg_notify('device_jobs', device_id)`. Whichever API instance holds that socket wakes up, claims the queued messages and pushes them. Offline phones pick up their queue on reconnect, and a push notification can wake them.
+- **A `Provider` interface** sits under dispatch. Android phones, SMS providers and a zero-cost simulator (used by `bk_test_` keys) are interchangeable routes.
+
+### Request lifecycle
+
+```text
+POST /v1/messages
+  -> validate + normalize to E.164
+  -> rate limits (IP -> key -> project -> destination)
+  -> BEGIN; insert message (queued) + timeline event + River dispatch job; COMMIT
+  -> worker picks a route (phone with capacity, or provider)
+  -> phone/provider reports sent -> carrier delivery report -> webhook
+```
+
+## Retries That Never Send a Code Twice
+
+For a login code, sending twice is almost as bad as not sending at all. Bridge guards against duplicates at every layer:
+
+- **API idempotency.** An `Idempotency-Key` header returns the original message (`Idempotent-Replayed: true`) instead of creating a new one. The same key with a different body is rejected with `409`.
+- **Phone-side de-duplication.** Phones de-duplicate jobs by message and attempt, so a redelivered job is never sent twice.
+- **Ambiguous failures are not retried.** When Android can't confirm whether an SMS left (`generic_failure`), Bridge marks it failed rather than risk a duplicate. Only clearly retryable failures (no service, radio off) are retried, up to 3 attempts.
+
+## Living Within Real SIM Limits
+
+Phones aren't servers. Android asks the owner to approve each SMS beyond about **30 per 30 minutes** from one app, and operators can block SIMs that send far more than a person would. Bridge treats these as first-class constraints:
+
+- Each phone is paced under its **send limit** (30 per 30 minutes by default), and the rest wait in the queue.
+- Each phone has a **daily cap**, 100 messages in any rolling 24 hours by default. Dispatch skips a phone at its cap, broadcasts pace to what's left, and a message no phone can take either goes to a provider or fails with `daily_limit_reached`.
+- More phones mean more capacity. Bridge reports these limits instead of hiding them.
+
+## Verify: OTP With Failover
+
+`POST /v1/otp` generates and sends a code, and `POST /v1/otp/verify` checks it. Codes that don't arrive are lost sign-ups, so **delivery failover** sends the same code once more through another route if the first SMS hasn't left within 30 seconds (configurable): a provider if the project's routing allows it, otherwise **another** online phone, never the original one. Fraud protection limits codes per IP and per number range, Cloudflare Turnstile blocks bots, and the drop-in widget returns a signed token that your backend checks.
+
+## The Android Gateway
+
+The gateway app is written in **Kotlin with Jetpack Compose**, supports API 26+ so old spare phones work, and ships in two builds: `foss` (UnifiedPush, fully FOSS, on F-Droid and GitHub Releases) and `gms` (adds Firebase Cloud Messaging wake-ups).
+
+Staying connected without draining the battery took the most iteration:
+
+- Adaptive heartbeats: every 60 s while charging, 5 min on battery, 10 min in battery saver, with no WebSocket pings.
+- Reconnects follow Android's network callback instead of retrying blindly, with exponential backoff and jitter (1 s to 5 min).
+- A missed `heartbeat_ack` within 20 s triggers a reconnect, and push wake-ups catch phones the OS has put to sleep.
+
+![Bridge dashboard: the Usage page with daily outgoing messages by delivered, sent and failed](/project/bridge-usage.webp)
+
+## Security by Default
+
+- API keys and tokens are stored hashed. Passwords use **argon2id**.
+- Provider credentials are encrypted at rest.
+- Webhooks are SSRF-safe and signed (Standard Webhooks).
+- Layered rate limits per IP, key, project and destination.
+- Message text is erased after 30 days.
+
+## Tech Stack
+
+| Layer | Technology |
+| --- | --- |
+| API & worker | Go 1.27, Huma v2 on chi, coder/websocket |
+| Database & queue | PostgreSQL 18, pgx v5 + sqlc, River jobs, goose migrations |
+| Contract | OpenAPI 3.1 generated from Go structs, TypeScript types generated from it |
+| Dashboard & website | Next.js 16, React 19, Tailwind CSS v4, shadcn/ui, TanStack Query, Recharts |
+| Android | Kotlin, Jetpack Compose, WorkManager, FCM / UnifiedPush |
+| Developer tools | TypeScript SDK (MIT, zero deps), `bridgectl` CLI, MCP server (Go SDK) |
+| Tooling | TypeScript 7, Biome, pnpm, Turborepo |
+| Billing | Dodo Payments (hosted only) |
+| Delivery | Docker Compose, GoReleaser, GitHub Actions, npm with provenance |
+
+## Challenges & Trade-offs
+
+- **No Redis, on purpose.** Rate limits and the job queue live in Postgres behind interfaces. That keeps self-hosting to one binary and one database, at the cost of a ceiling on very high volume, where Redis can be added later.
+- **Open source vs a hosted business.** The server, dashboard and Android app are AGPL-3.0, so closed forks can't take the hosted offering. The SDK is MIT so it can go anywhere. Plans and limits only apply with `BRIDGE_CLOUD=true`, so the self-hosted build is never limited.
+- **Trusting billing webhooks.** Each Dodo Payments webhook is treated as a signal: Bridge re-reads the subscription and claims the `webhook-id` atomically in the same transaction, so concurrent, late or out-of-order deliveries can't overwrite newer state.
+- **Responsible use.** Bridge isn't a marketing tool and doesn't help bypass carrier rules or DLT registration. Broadcasts always honour opt-outs and are paced to phones' limits.
+
+## What I Learned
+
+- **Postgres goes a long way.** Data, queue, pub/sub and rate limits from one database made both the code and self-hosting simpler.
+- **Transactions are a design tool.** Putting the message, its timeline event and its job in one transaction removed a whole class of "message stuck forever" bugs.
+- **Mobile is a different world.** Doze, battery saver, flaky networks and OS-level SMS limits shaped the protocol more than any server concern did.
+- **Generated contracts keep a monorepo honest.** One OpenAPI spec feeds the dashboard, the SDK and the docs, so they can't drift.
+
+## Impact
+
+- **Bridge 1.0 and 1.1 released**, hosted at [bridge.kroszborg.co](https://bridge.kroszborg.co) with a free plan, and self-hostable with `docker compose up -d`
+- **A full SMS platform from one repo**: Go API and worker, Next.js dashboard and website, Kotlin Android app, TypeScript SDK, CLI and MCP server
+- **Drop-in phone verification** with failover, fraud limits and integrations for Supabase, Better Auth, Auth0, Firebase and Clerk
+- **Android app prepared for Google Play and F-Droid**, with FOSS and Google Play Services builds
