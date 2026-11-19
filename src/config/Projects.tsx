@@ -180,7 +180,7 @@ export const projects: Project[] = [
     title: 'Metamorpher',
     description:
       'Open-source file toolkit - 109 tools for PDFs, images, audio, video and documents that run entirely in the browser on WebAssembly, so files are never uploaded. Works offline.',
-    image: '/project/Metamorpher.webp',
+    image: '/project/metamorpher-home.webp',
     link: 'https://metamorpher.kroszborg.co',
     technologies: [
       { name: 'Next.js', icon: <NextJs key="nextjs-metamorpher" /> },

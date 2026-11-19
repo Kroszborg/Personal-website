@@ -6,6 +6,7 @@ import NextJs from '@/components/technologies/NextJs';
 // import NodeJs from '@/components/technologies/NodeJs';
 // import Postman from '@/components/technologies/Postman';
 import ReactIcon from '@/components/technologies/ReactIcon';
+import Shadcn from '@/components/technologies/Shadcn';
 import Strapi from '@/components/technologies/Strapi';
 import TailwindCss from '@/components/technologies/TailwindCss';
 import TypeScript from '@/components/technologies/TypeScript';
@@ -34,6 +35,46 @@ export interface Experience {
 }
 
 export const experiences: Experience[] = [
+  {
+    isCurrent: true,
+    // The employer is not public yet: the card shows a blurred placeholder, and
+    // the real name is deliberately not in this file (it would ship in the page source).
+    isBlur: true,
+    company: 'Confidential',
+    position: 'Frontend Developer Intern',
+    location: 'Bengaluru, India (Remote)',
+    image: '/company/confidential.png',
+    description: [
+      'Led the *ground-up rebuild of the customer dashboard* on a new token-driven design system, migrating from MUI to *Tailwind v4 and shadcn/Radix* with full light and dark mode across *50+ screens*, shipped with zero backend changes',
+      'Shipped the *Workflows module end to end*: templates with fork, batch run creation, execution timelines, manual-review decisions, webhook configuration and exportable run reports with inline PDF rendering via *pdf.js Web Workers*',
+      'Built *workflow analytics from scratch* with portfolio and funnel views, step-level drop-off inspection, KPI comparisons against the prior window, CSV export and guided first-visit tours, all with *URL-backed state* for shareable, restorable views',
+    ],
+    startDate: 'Jul 2026',
+    endDate: 'Present',
+    technologies: [
+      {
+        name: 'React',
+        href: 'https://react.dev/',
+        icon: <ReactIcon />,
+      },
+      {
+        name: 'TypeScript',
+        href: 'https://typescriptlang.org/',
+        icon: <TypeScript />,
+      },
+      {
+        name: 'Tailwind CSS',
+        href: 'https://tailwindcss.com/',
+        icon: <TailwindCss />,
+      },
+      {
+        name: 'shadcn/ui',
+        href: 'https://ui.shadcn.com/',
+        icon: <Shadcn />,
+      },
+    ],
+    website: '',
+  },
   {
     isCurrent: false,
     company: 'Bytehint',

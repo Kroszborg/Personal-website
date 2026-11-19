@@ -11,7 +11,7 @@ function generateSystemPrompt(): string {
   const experienceText = experiences
     .map(
       (exp) =>
-        `${exp.position} at ${exp.company} (${exp.startDate} - ${exp.endDate})`,
+        `${exp.position} at ${exp.isBlur ? 'a company whose name is not public yet' : exp.company} (${exp.startDate} - ${exp.endDate})`,
     )
     .join('\n- ');
   const projectsText = projects
