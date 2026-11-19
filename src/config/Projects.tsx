@@ -177,15 +177,17 @@ export const projects: Project[] = [
     isWorking: true,
   },
   {
-    title: 'MetaMorpher',
+    title: 'Metamorpher',
     description:
-      'Web-based Multimedia Conversion Tool - Privacy-focused, client-side conversion tool using FFmpeg.wasm for image, audio, and video formats',
+      'Open-source file toolkit - 109 tools for PDFs, images, audio, video and documents that run entirely in the browser on WebAssembly, so files are never uploaded. Works offline.',
     image: '/project/Metamorpher.webp',
     link: 'https://metamorpher.kroszborg.co',
     technologies: [
+      { name: 'Next.js', icon: <NextJs key="nextjs-metamorpher" /> },
       { name: 'React', icon: <ReactIcon key="react" /> },
       { name: 'TypeScript', icon: <TypeScript key="typescript" /> },
       { name: 'FFmpeg.wasm', icon: <FFmpeg key="ffmpeg" /> },
+      { name: 'PostgreSQL', icon: <PostgreSQL key="postgresql-metamorpher" /> },
       { name: 'Tailwind CSS', icon: <TailwindCss key="tailwindcss" /> },
       { name: 'Vercel', icon: <Vercel key="vercel" /> },
     ],
