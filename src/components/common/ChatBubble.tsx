@@ -272,12 +272,6 @@ const ChatBubble: React.FC = () => {
             <h3 className="text-sm font-semibold">
               {heroConfig.name}&apos;s Portfolio Assistant
             </h3>
-            <div className="text-muted-foreground text-xs">
-              <div className="flex items-center gap-1">
-                <div className="h-2 w-2 animate-pulse rounded-full bg-green-500"></div>
-                Online
-              </div>
-            </div>
           </div>
         </div>
       </ExpandableChatHeader>
