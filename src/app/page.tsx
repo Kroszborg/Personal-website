@@ -1,5 +1,6 @@
 import { GrainOverlay } from '@/components/common/GrainOverlay';
 import About from '@/components/landing/About';
+import Blog from '@/components/landing/Blog';
 import CTA from '@/components/landing/CTA';
 import Experience from '@/components/landing/Experience';
 import Github from '@/components/landing/Github';
@@ -29,6 +30,7 @@ export default function page() {
             <main className="min-w-0 flex-1">
               <Experience />
               <Work />
+              <Blog />
               <About />
               <Github />
               <CTA />

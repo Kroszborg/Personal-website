@@ -17,6 +17,27 @@ import { Project } from '@/types/project';
 
 export const projects: Project[] = [
   {
+    title: 'Metamorpher',
+    description:
+      'Open-source file toolkit - 109 tools for PDFs, images, audio, video and documents that run entirely in the browser on WebAssembly, so files are never uploaded. Works offline.',
+    image: '/project/metamorpher-home.webp',
+    link: 'https://metamorpher.kroszborg.co',
+    technologies: [
+      { name: 'Next.js', icon: <NextJs key="nextjs-metamorpher" /> },
+      { name: 'React', icon: <ReactIcon key="react" /> },
+      { name: 'TypeScript', icon: <TypeScript key="typescript" /> },
+      { name: 'FFmpeg.wasm', icon: <FFmpeg key="ffmpeg" /> },
+      { name: 'PostgreSQL', icon: <PostgreSQL key="postgresql-metamorpher" /> },
+      { name: 'Tailwind CSS', icon: <TailwindCss key="tailwindcss" /> },
+      { name: 'Vercel', icon: <Vercel key="vercel" /> },
+    ],
+    github: 'https://github.com/Kroszborg/metamorpher',
+    live: 'https://metamorpher.kroszborg.co',
+    details: true,
+    projectDetailsPageSlug: '/projects/metamorpher',
+    isWorking: true,
+  },
+  {
     title: 'Bridge',
     description:
       'Open-source SMS & Phone Verification Infrastructure - Send SMS through Android phones you already own, or MSG91/Twilio/Vonage/Plivo, behind one developer API. Delivery timelines, signed webhooks, OTP Verify with failover, broadcasts, a team dashboard, TypeScript SDK, CLI and MCP server. Hosted or self-hosted as one Go binary plus Postgres.',
@@ -174,27 +195,6 @@ export const projects: Project[] = [
     live: 'https://zaxis.kroszborg.co',
     details: true,
     projectDetailsPageSlug: '/projects/zaxis',
-    isWorking: true,
-  },
-  {
-    title: 'Metamorpher',
-    description:
-      'Open-source file toolkit - 109 tools for PDFs, images, audio, video and documents that run entirely in the browser on WebAssembly, so files are never uploaded. Works offline.',
-    image: '/project/metamorpher-home.webp',
-    link: 'https://metamorpher.kroszborg.co',
-    technologies: [
-      { name: 'Next.js', icon: <NextJs key="nextjs-metamorpher" /> },
-      { name: 'React', icon: <ReactIcon key="react" /> },
-      { name: 'TypeScript', icon: <TypeScript key="typescript" /> },
-      { name: 'FFmpeg.wasm', icon: <FFmpeg key="ffmpeg" /> },
-      { name: 'PostgreSQL', icon: <PostgreSQL key="postgresql-metamorpher" /> },
-      { name: 'Tailwind CSS', icon: <TailwindCss key="tailwindcss" /> },
-      { name: 'Vercel', icon: <Vercel key="vercel" /> },
-    ],
-    github: 'https://github.com/Kroszborg/metamorpher',
-    live: 'https://metamorpher.kroszborg.co',
-    details: true,
-    projectDetailsPageSlug: '/projects/metamorpher',
     isWorking: true,
   },
 ];
